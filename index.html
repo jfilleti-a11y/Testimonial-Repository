@@ -1,0 +1,1952 @@
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wave Testimonial Repository</title>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+      /* For drag-and-drop animation */
+      .sortable-ghost { opacity: 0.4; background: var(--clr-primary-light); }
+
+      /* ── DESIGN TOKENS ── */
+      :root {
+        --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+
+        /* Palette */
+        --clr-primary:       #4f5fe8;
+        --clr-primary-light: #eef0ff;
+        --clr-primary-hover: #3d4ad6;
+        --clr-bg:            #f6f7fb;
+        --clr-surface:       #ffffff;
+        --clr-surface-2:     #f8f9fd;
+        --clr-text-main:     #16182a;
+        --clr-text-muted:    #6b7080;
+        --clr-border:        #e7e9f2;
+        --clr-danger:        #e5484d;
+        --clr-danger-bg:     #fef2f2;
+        --clr-success:       #18a058;
+
+        /* Shape */
+        --radius-xs:  8px;
+        --radius-sm:  12px;
+        --radius-md:  16px;
+        --radius-lg:  20px;
+        --radius-xl:  28px;
+        --radius-pill:9999px;
+
+        /* Spacing scale */
+        --space-1: .25rem;
+        --space-2: .5rem;
+        --space-3: .75rem;
+        --space-4: 1rem;
+        --space-5: 1.5rem;
+        --space-6: 2rem;
+        --space-7: 3rem;
+
+        /* Depth */
+        --shadow-xs: 0 1px 2px rgba(22,24,42,.05);
+        --shadow-sm: 0 2px 8px rgba(22,24,42,.06);
+        --shadow-md: 0 8px 24px rgba(22,24,42,.08);
+        --shadow-lg: 0 20px 48px rgba(22,24,42,.10);
+        --shadow-modal: 0 25px 60px -12px rgba(22,24,42,.22);
+
+        --transition: all .18s cubic-bezier(.4,0,.2,1);
+      }
+
+      /* ── DARK MODE COLORS ── */
+      body.dark {
+        --clr-primary:       #7b89ff;
+        --clr-primary-light: #262b48;
+        --clr-primary-hover: #94a0ff;
+        --clr-bg:            #0f1019;
+        --clr-surface:       #181a28;
+        --clr-surface-2:     #21232f;
+        --clr-text-main:     #f1f2fa;
+        --clr-text-muted:    #8b8fa3;
+        --clr-border:        #2c2e40;
+        --clr-danger-bg:     #2e1a1c;
+
+        --shadow-xs: 0 1px 2px rgba(0,0,0,.2);
+        --shadow-sm: 0 2px 8px rgba(0,0,0,.25);
+        --shadow-md: 0 8px 24px rgba(0,0,0,.3);
+        --shadow-lg: 0 20px 48px rgba(0,0,0,.35);
+        --shadow-modal: 0 25px 60px -12px rgba(0,0,0,.5);
+      }
+      body.dark #header-logo,
+      body.dark .login-logo {
+        filter: brightness(0) invert(1); /* Makes SVG pure white */
+      }
+
+      /* ── RESET ── */
+      *, *::before, *::after { box-sizing: border-box; }
+
+      body {
+        font-family: var(--font-sans);
+        background: var(--clr-bg);
+        color: var(--clr-text-main);
+        margin: 0;
+        padding: 0 clamp(1.25rem, 6vw, 5rem) 2.5rem;
+        line-height: 1.55;
+        -webkit-font-smoothing: antialiased;
+      }
+
+      .hidden { display: none !important; }
+
+      h1, h2, h3, h4 {
+        font-family: var(--font-sans);
+        font-weight: 700;
+        letter-spacing: -.025em;
+        color: var(--clr-text-main);
+        margin-top: 0;
+      }
+
+      button, input, textarea, select { font-family: inherit; }
+
+      hr {
+        border: none;
+        height: 1px;
+        background: var(--clr-border);
+        margin: 2rem 0;
+      }
+
+      /* ── DYNAMIC HEADER ── */
+      #main-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        transition: var(--transition);
+        width: 100%;
+        box-sizing: border-box;
+      }
+      .header-left {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        transition: var(--transition);
+
+      }
+      #header-logo {
+        transition: var(--transition);
+
+      }
+      #header-title {
+        margin: 0;
+        transition: var(--transition);
+        color: var(--clr-text-main);
+      }
+
+      /* Large Header State (Homepage) */
+      .header-large {
+        padding: 1.5rem 0;
+        margin-bottom: 2rem;
+        border-bottom: 1px solid var(--clr-border);
+      }
+      .header-large #header-logo {
+        height: 30px;
+       padding-bottom: 0.15rem;
+      }
+      .header-large #header-title {
+        /* font-size: 1.4rem; */
+        font-size: clamp(1rem, 3vw, 1.4rem);
+
+      }
+
+
+
+      /* ── LOGOUT BTN ── */
+      #logout-btn {
+        background: var(--clr-surface);
+        color: var(--clr-text-muted);
+        border: 1px solid var(--clr-border);
+        padding: .45rem 1rem;
+        border-radius: var(--radius-pill);
+        cursor: pointer;
+        font-weight: 500;
+        font-size: .85rem;
+        transition: var(--transition);
+        box-shadow: var(--shadow-xs);
+      }
+      #logout-btn:hover {
+        color: var(--clr-danger);
+        border-color: var(--clr-danger);
+        background: var(--clr-danger-bg);
+      }
+
+      /* User Menu Dropdown */
+      #user-menu {
+        position: relative;
+      }
+      #user-info {
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.25rem;
+        border-radius: var(--radius-pill);
+        transition: var(--transition);
+      }
+      #user-info:hover {
+        background-color: var(--clr-surface-2);
+      }
+      #user-menu-dropdown {
+        position: absolute;
+        right: 0;
+        top: calc(100% + 8px);
+        background: var(--clr-surface);
+        border-radius: var(--radius-sm);
+        box-shadow: var(--shadow-md);
+        border: 1px solid var(--clr-border);
+        padding: 0.5rem;
+        z-index: 10;
+      }
+      #user-menu-dropdown button {
+        width: 100%;
+        text-align: left;
+        padding: 0.5rem 0.75rem;
+        background: none;
+        border: none;
+        border-radius: var(--radius-xs);
+        color: var(--clr-text-main);
+        font-size: 0.9rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        cursor: pointer;
+      }
+      #user-menu-dropdown button:hover { background-color: var(--clr-surface-2); }
+      #user-menu-dropdown.hidden { display: none; }
+      #user-menu-arrow {
+        transition: var(--transition);
+      }
+
+      /* ── SEARCH & TOP ACTIONS ── */
+      .top-actions {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 2rem;
+        flex-wrap: wrap;
+      }
+      #search-bar {
+        width: 100%;
+        padding: .875rem 1.25rem;
+        padding-right: 6rem; /* Make more space for the wider clear button */
+        font-size: .97rem;
+        border: 1px solid var(--clr-border);
+        border-radius: var(--radius-pill);
+        background: var(--clr-surface);
+        position: relative; /* Make this the positioning parent */
+        box-shadow: var(--shadow-xs);
+        transition: var(--transition);
+        color: var(--clr-text-main);
+      }
+      #search-bar::placeholder { color: #a0aab4; }
+      #search-bar:focus {
+        outline: none;
+        border-color: var(--clr-primary);
+        box-shadow: 0 0 0 4px rgba(79,95,232,.14);
+      }
+      .search-wrapper {
+        position: relative;
+        flex-grow: 1; /* Allow the wrapper to take up available space */
+      }
+      #clear-search-btn {
+        position: absolute;
+        top: 50%;
+        right: 1rem;
+        transform: translateY(-50%) scale(0.95); /* Start slightly smaller */
+        background: var(--clr-surface-2);
+        border: none;
+        border-radius: var(--radius-pill);
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 0.3rem;
+        padding: 0.3rem 0.8rem;
+        color: var(--clr-text-muted);
+        font-size: 0.85rem;
+        font-weight: 500;
+        opacity: 0;
+        pointer-events: none;
+        transition: var(--transition);
+      }
+      #clear-search-btn.visible {
+        opacity: 1;
+        pointer-events: auto;
+        transform: translateY(-50%) scale(1);
+      }
+      #clear-search-btn:hover { background: var(--clr-border); }
+
+      #search-suggestions {
+        position: absolute;
+        top: calc(100% + 6px);
+        left: 0;
+        right: 0;
+        background: var(--clr-surface);
+        border: 1px solid var(--clr-border);
+        border-radius: var(--radius-md);
+        box-shadow: var(--shadow-md);
+        z-index: 10;
+        overflow: hidden;
+        opacity: 0;
+        transform: translateY(-10px);
+        pointer-events: none;
+        transition: var(--transition);
+      }
+      #search-suggestions.visible {
+        opacity: 1;
+        transform: translateY(0);
+        pointer-events: auto;
+      }
+      .suggestion-item {
+        padding: 0.6rem 1.25rem;
+        cursor: pointer;
+      }
+      .suggestion-item:hover { background: var(--clr-primary-light); }
+
+      .search-option {
+        display: flex;
+        align-items: center;
+        gap: 0.3rem;
+        padding: 0 0.8rem;
+      }
+      .search-option label {
+        font-size: 0.85rem;
+        font-weight: 500;
+        color: var(--clr-text-muted);
+      }
+
+      /* ── MODAL (Add Testimonial) ── */
+      .modal-overlay {
+        position: fixed;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background: rgba(26,29,46,0.4);
+        backdrop-filter: blur(4px);
+        z-index: 1000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 1rem;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.3s ease;
+      }
+      .modal-overlay.active {
+        opacity: 1;
+        pointer-events: auto;
+      }
+      .modal-content {
+        background: var(--clr-surface);
+        width: 100%;
+        max-width: 640px;
+        border-radius: var(--radius-xl);
+        box-shadow: var(--shadow-modal);
+        position: relative;
+        transform: translateY(20px);
+        transition: transform 0.3s cubic-bezier(.4,0,.2,1);
+        max-height: 90vh;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+      }
+      .modal-overlay.active .modal-content {
+        transform: translateY(0);
+      }
+      .modal-header {
+        padding: 1.5rem 2rem;
+        border-bottom: 1px solid var(--clr-border);
+        background: var(--clr-surface);
+        position: relative;
+        flex-shrink: 0;
+      }
+      .modal-header h3 {
+        margin: 0;
+        font-size: 1.4rem;
+        color: var(--clr-text-main);
+      }
+      .modal-body {
+        padding: 2rem;
+        overflow-y: auto;
+        flex-grow: 1;
+      }
+      .modal-footer {
+        flex-shrink: 0;
+        padding: 1rem 2rem;
+        border-top: 1px solid var(--clr-border);
+        background: var(--clr-surface);
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        gap: 1rem;
+      }
+      .modal-close-btn {
+        position: absolute;
+        top: 50%;
+        right: 2rem;
+        transform: translateY(-50%);
+        background: var(--clr-surface-2);
+        border: none;
+        font-size: 1.5rem;
+        width: 38px;
+        height: 38px;
+        border-radius: 50%;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--clr-text-muted);
+        transition: var(--transition);
+      }
+      .modal-close-btn > span {
+        transform: translateY(-1px); /* Nudge the 'x' up for perfect centering */
+        transition: var(--transition);
+      }
+      .modal-close-btn:hover {
+        background: var(--clr-danger-bg);
+        color: var(--clr-danger);
+      }
+
+      /* ── FORM INPUTS ── */
+      form {
+        display: flex;
+        flex-direction: column;
+        gap: .75rem;
+        width: 100%;
+      }
+
+      form input[type="text"],
+      form input[type="url"],
+      form textarea {
+        width: 100%;
+        padding: .75rem 1.1rem;
+        border: 1px solid var(--clr-border);
+        border-radius: var(--radius-md);
+        font-size: .93rem;
+        background: var(--clr-surface-2);
+        color: var(--clr-text-main);
+        transition: var(--transition);
+        resize: vertical;
+      }
+      form input::placeholder,
+      form textarea::placeholder { color: #a8b0bc; }
+      form input:focus,
+      form textarea:focus {
+        outline: none;
+        border-color: var(--clr-primary);
+        background: var(--clr-surface);
+        box-shadow: 0 0 0 3px rgba(79,95,232,.14);
+      }
+
+      .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.35rem;
+        text-align: left;
+        margin-bottom: 0.5rem;
+      }
+      .form-group label {
+        font-size: 0.75rem;
+        font-weight: 700;
+        color: var(--clr-text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin-left: 0.2rem;
+      }
+
+      .delete-modal-content {
+        max-width: 400px;
+        text-align: center;
+        padding: 2.25rem;
+        display: block;
+        overflow: visible;
+      }
+      .delete-modal-content h3 {
+        color: var(--clr-danger);
+        font-size: 1.3rem;
+        margin-bottom: 0.75rem;
+      }
+      .delete-modal-content p {
+        color: var(--clr-text-muted);
+        font-size: 0.92rem;
+        margin-bottom: 1.75rem;
+        line-height: 1.5;
+      }
+      .modal-actions-row {
+        display: flex;
+        justify-content: center;
+        gap: 1rem;
+      }
+      .info-modal-content {
+        max-width: 450px;
+        text-align: center;
+        padding: 2.25rem;
+        display: block;
+        overflow: visible;
+      }
+      .info-modal-content h3 {
+        font-size: 1.3rem;
+        margin-bottom: 0.75rem;
+      }
+      .info-modal-content p {
+        color: var(--clr-text-muted);
+        font-size: 0.92rem;
+        margin-bottom: 1.75rem;
+        line-height: 1.5;
+      }
+      #admin-email-list {
+        margin-bottom: 1.75rem;
+
+      }
+      .danger-btn {
+        background: var(--clr-danger);
+        color: #fff;
+        border: none;
+        box-shadow: 0 2px 12px rgba(229,72,77,.28);
+      }
+      .danger-btn:hover {
+        background: #d33438;
+        box-shadow: 0 4px 18px rgba(229,72,77,.38);
+        transform: translateY(-1px);
+      }
+
+      /* ── BUTTONS ── */
+      .btn-primary {
+        background: var(--clr-primary);
+        color: #fff;
+        padding: .8rem 1.75rem;
+        border: none;
+        border-radius: var(--radius-pill);
+        font-weight: 600;
+        font-size: .92rem;
+        cursor: pointer;
+        transition: var(--transition);
+        box-shadow: 0 2px 12px rgba(79,95,232,.25);
+      }
+      .btn-primary:hover {
+        background: var(--clr-primary-hover);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 18px rgba(79,95,232,.35);
+      }
+
+      #login-btn {
+        background: var(--clr-text-main);
+        color: #fff;
+        padding: .85rem 1.75rem;
+        border: none;
+        border-radius: var(--radius-pill);
+        font-weight: 600;
+        font-size: .97rem;
+        cursor: pointer;
+        width: 100%;
+        transition: var(--transition);
+        box-shadow: 0 2px 12px rgba(26,29,46,.18);
+      }
+      #login-btn:hover {
+        background: #2e3247;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 18px rgba(26,29,46,.28);
+      }
+      body.dark #login-btn {
+        background: var(--clr-primary);
+        color: #fff;
+      }
+      body.dark #login-btn:hover { background: var(--clr-primary-hover); }
+
+      /* ── LOGIN SCREEN ── */
+      #login-screen {
+        max-width: 440px;
+        margin: 14vh auto;
+        background: var(--clr-surface);
+        padding: 3rem 2.75rem;
+        border-radius: var(--radius-xl);
+        border: 1px solid var(--clr-border);
+        text-align: center;
+        box-shadow: var(--shadow-lg);
+      }
+      .login-logo {
+        height: 32px;
+        margin-bottom: 1rem;
+      }
+      #login-screen h2 {
+        font-size: 1.5rem;
+        margin-bottom: 2.25rem;
+      }
+      #login-screen p {
+        color: var(--clr-text-muted);
+        font-size: .85rem;
+        margin-top: 1rem;
+        margin-bottom: 0;
+      }
+      #login-screen #error-msg {
+        color: var(--clr-danger);
+        font-weight: 500;
+        font-size: .9rem;
+        margin-top: 1.25rem;
+      }
+
+      /* ── CARD GRID ── */
+      .testimonial-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 1.5rem;
+      }
+
+      .card {
+        background: var(--clr-surface);
+        border: 1px solid var(--clr-border);
+        border-radius: var(--radius-lg);
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        cursor: pointer;
+        box-shadow: var(--shadow-xs);
+        transition: var(--transition);
+        position: relative; /* For the hover edit button */
+      }
+      .card:hover {
+        transform: translateY(-4px);
+        box-shadow: var(--shadow-md);
+        border-color: var(--clr-primary);
+      }
+      .card:hover .card-image {
+        transform: scale(1.04);
+      }
+
+
+      .card-image-container {
+        width: 100%;
+        height: 320px;
+        overflow: hidden;
+        background: #eef1f7;
+        border-bottom: 1px solid var(--clr-border);
+      }
+
+      .card-image {
+        width: 100%;
+        height: 320px;
+        object-fit: cover;
+        transition: var(--transition);
+        display: block;
+      }
+
+      .card-body {
+        padding: 1.5rem 1.75rem;
+        display: flex;
+        flex-direction: column;
+        flex-grow: 1;
+        gap: .25rem;
+      }
+      .card-body h3 {
+        font-size: 1.1rem;
+        margin-bottom: .1rem;
+        color: var(--clr-text-main);
+      }
+      .card-body p.business {
+        font-size: .75rem;
+        color: var(--clr-primary);
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: .07em;
+        margin: 0 0 .9rem;
+      }
+      .card-body p.quote {
+        font-size: .93rem;
+        color: var(--clr-text-muted);
+        line-height: 1.6;
+        margin: 0;
+        font-style: italic;
+      }
+
+      .card-hover-actions {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        display: flex;
+        gap: 0.5rem;
+        opacity: 0;
+        transform: translateY(-10px);
+        transition: var(--transition);
+        pointer-events: none;
+        z-index: 5;
+      }
+      .card:hover .card-hover-actions {
+        opacity: 1;
+        transform: translateY(0);
+        pointer-events: auto;
+      }
+      .card-hover-btn {
+        background: rgba(255,255,255,0.8);
+        backdrop-filter: blur(4px);
+        border: 1px solid rgba(0,0,0,0.08);
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: var(--shadow-sm);
+        transition: var(--transition);
+      }
+      .card-hover-btn:hover {
+        transform: scale(1.1);
+        box-shadow: var(--shadow-md);
+      }
+      .card-hover-btn.delete:hover {
+        background: var(--clr-danger);
+        color: white;
+        border-color: var(--clr-danger);
+      }
+
+      /* Card Load-in Animation */
+      @keyframes card-load-in {
+        from {
+          opacity: 0;
+          transform: translateY(15px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+
+      /* ── TAG PILLS ── */
+      .clickable-tag {
+        display: inline-block;
+        font-family: var(--font-sans);
+        font-size: .8rem;
+        font-weight: 600;
+        background: var(--clr-primary-light);
+        color: var(--clr-primary);
+        border-radius: var(--radius-pill);
+        padding: .35rem .85rem;
+        border: none;
+        cursor: pointer;
+        transition: var(--transition);
+        margin-bottom: .45rem;
+        margin-right: .45rem;
+      }
+      .clickable-tag:hover {
+        background: #dde2ff;
+      }
+
+      /* ── DETAIL SCREEN ── */
+      #detail-screen,
+      #edit-screen {
+        max-width: 1200px;
+        margin: 0 auto;
+      }
+
+      .detail-nav {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+      }
+      .detail-actions {
+        display: flex;
+        gap: 0.75rem;
+      }
+
+      .btn-ghost {
+        background: none;
+        border: 1px solid var(--clr-border);
+        border-radius: var(--radius-pill);
+        padding: .45rem 1.1rem;
+        font-size: .88rem;
+        font-weight: 600;
+        color: var(--clr-text-muted);
+        cursor: pointer;
+        transition: var(--transition);
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        text-decoration: none;
+      }
+      .btn-ghost:hover {
+        background: var(--clr-surface);
+        color: var(--clr-text-main);
+        border-color: var(--clr-text-main);
+        box-shadow: var(--shadow-xs);
+      }
+      .btn-ghost.danger:hover {
+        color: var(--clr-danger);
+        border-color: var(--clr-danger);
+        background: var(--clr-danger-bg);
+      }
+
+      /* Detail content inner layout */
+      .detail-header-name {
+        font-size: clamp(2rem, 4vw, 3.2rem);
+        margin-bottom: .15rem;
+      }
+      .detail-header-biz {
+        color: var(--clr-text-muted);
+        margin-bottom: 2rem;
+        margin-top: 0.3rem;
+        font-size: clamp(0.8rem, 2vw, 1rem);
+
+      }
+      .detail-layout {
+        display: flex;
+        gap: 2rem;
+      }
+      .detail-sidebar h3 {
+        font-size: .85rem;
+        text-transform: uppercase;
+        letter-spacing: .08em;
+        color: var(--clr-text-muted);
+        font-weight: 700;
+        margin-bottom: 1rem;
+      }
+      .detail-sidebar ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        display: flex;
+        flex-wrap: wrap;
+        gap: .4rem;
+      }
+      .quick-links-box ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        display: flex;
+        flex-wrap: wrap;
+
+      }
+      .detail-left-column {
+        width: 250px;
+        flex-shrink: 0;
+        display: flex;
+        flex-direction: column;
+
+      }
+      .detail-main { flex: 1; min-width: 0; }
+
+      .video-placeholder {
+        width: 100%;
+        height: 520px;
+        background: #0d0f1a;
+        border-radius: var(--radius-lg);
+        border: 1px solid var(--clr-border);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 2rem;
+        font-size: .95rem;
+        color: var(--clr-text-muted);
+        position: relative;
+        overflow: hidden;
+      }
+      .video-placeholder.empty {
+        background: linear-gradient(135deg, #eef1f7 0%, #e0e5f2 100%);
+      }
+      .iframe-container {
+        width: 100%;
+        height: 100%;
+        position: relative;
+        border-radius: var(--radius-lg);
+        overflow: hidden;
+      }
+      .iframe-overlay-bar {
+        position: absolute;
+        bottom: 1rem;
+        right: 1rem;
+        z-index: 10;
+      }
+      .btn-ghost-small {
+        background: rgba(26, 29, 46, 0.75);
+        backdrop-filter: blur(4px);
+        color: #fff;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        padding: 0.35rem 0.75rem;
+        font-size: 0.75rem;
+        font-weight: 600;
+        border-radius: var(--radius-pill);
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25rem;
+        transition: var(--transition);
+      }
+      .btn-ghost-small:hover {
+        background: rgba(26, 29, 46, 0.9);
+        border-color: #fff;
+        color: #fff;
+      }
+
+      .pull-quote {
+        font-size: clamp(1.25rem, 2.5vw, 1.6rem);
+        font-weight: 400;
+        color: var(--clr-text-main);
+        line-height: 1.45;
+        margin-bottom: 2rem;
+        padding-left: 1.25rem;
+        border-left: 4px solid var(--clr-primary);
+        font-style: italic;
+      }
+
+      .quick-links-box {
+        background: var(--clr-surface-2);
+        border: 1px solid var(--clr-border);
+        border-radius: var(--radius-lg);
+        padding: 1rem 1rem;
+        margin-bottom: 2rem;
+      }
+      .quick-links-box h4 {
+        font-size: .85rem;
+        text-transform: uppercase;
+        letter-spacing: .08em;
+        color: var(--clr-text-muted);
+        font-weight: 700;
+        margin-bottom: .9rem;
+      }
+      .quick-links-box a {
+        color: var(--clr-primary);
+        text-decoration: none;
+        font-weight: 600;
+        font-size: .92rem;
+        margin-right: 1.5rem;
+        transition: var(--transition);
+        display: inline-flex; /* Align icon and text */
+        align-items: center;
+        gap: 0.4rem;
+      }
+      .quick-links-box a svg {
+        flex-shrink: 0; /* Prevent icon from shrinking */
+        width: 15px;
+        height: 15px;
+      }
+      .quick-links-box a:hover { text-decoration: underline; opacity: .8; }
+
+      .transcript-box {
+        margin-top: 2rem;
+      }
+      .transcript-box h3 {
+        font-size: .85rem;
+        text-transform: uppercase;
+        letter-spacing: .08em;
+        color: var(--clr-text-muted);
+        font-weight: 700;
+        margin-bottom: .75rem;
+      }
+      .transcript-body {
+        background: var(--clr-surface-2);
+        border: 1px solid var(--clr-border);
+        border-radius: var(--radius-md);
+        padding: 1.25rem 1.5rem;
+        max-height: 360px;
+        overflow-y: auto;
+        white-space: pre-wrap;
+        font-family: 'SF Mono', 'Fira Code', 'Menlo', monospace;
+        font-size: .85rem;
+        line-height: 1.65;
+        color: var(--clr-text-muted);
+        box-sizing: border-box; /* Ensures padding is inside, fixing scrollbar position */
+        clip-path: inset(0 0 0 0 round var(--radius-md)); /* Ensures content respects rounded corners */
+      }
+
+      /* ── EDIT SCREEN ── */
+      #edit-screen { max-width: 560px; }
+      #edit-screen h2 { font-size: 1.8rem; margin-bottom: 1.5rem; }
+      #edit-testimonial-form { max-width: 100%; margin-bottom: 2rem; }
+
+      /* ── RESPONSIVE ── */
+      @media (max-width: 680px) {
+        .detail-layout { flex-direction: column; }
+        .detail-left-column { width: 100%; }
+        .detail-main { order: -1; } /* This moves the main content to the top on mobile */
+        .header-left { flex-direction: column; align-items: flex-start; gap: 0.5rem; }
+        .header-large { padding: 2rem 0 1.5rem; }
+        #header-logo { height: 14px; } /* Make logo smaller on mobile */
+      }
+      /* ── USER MENU ELEMENTS (was inline style) ── */
+      .user-avatar {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        display: none;
+        object-fit: cover;
+      }
+      .user-name {
+        font-weight: 600;
+        font-size: .9rem;
+        color: var(--clr-text-main);
+      }
+      .user-menu-arrow { color: var(--clr-text-muted); }
+      .user-menu-list {
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-1);
+      }
+      .logout-text { color: var(--clr-danger); }
+
+      .add-btn {
+        width: auto;
+        display: inline-flex;
+        align-items: center;
+        gap: var(--space-2);
+      }
+      .clear-icon { font-size: 1.1rem; line-height: 1; }
+
+      .checkbox-label { cursor: pointer; }
+
+      .status-text {
+        margin-right: auto;
+        font-weight: 500;
+        font-size: .9rem;
+        margin-block: 0;
+      }
+    </style>
+</head>
+<body>
+
+    <header id="main-header" class="header-large hidden">
+        <div class="header-left">
+            <img src="https://cdn.prod.website-files.com/62446230dcb514b828a6e237/677ed61188695f2316217fc5_Wave-2_0-logo-fullcolour-rgb.svg" alt="Wave Logo" id="header-logo">
+            <h1 id="header-title">Testimonial Repository</h1>
+        </div>
+        <div id="user-menu">
+            <div id="user-info">
+                <img id="user-avatar" class="user-avatar" src="" alt="User Avatar">
+                <span id="user-name" class="user-name"></span>
+                <svg id="user-menu-arrow" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="user-menu-arrow">
+                    <polyline points="6 9 12 15 18 9"></polyline>
+                </svg>
+            </div>
+            <div id="user-menu-dropdown" class="hidden">
+                <div class="user-menu-list">
+                    <button id="theme-toggle-btn">Toggle Theme</button>
+                    <button id="logout-btn" class="logout-text">Log Out</button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div id="login-screen">
+        <img src="https://cdn.prod.website-files.com/62446230dcb514b828a6e237/677ed61188695f2316217fc5_Wave-2_0-logo-fullcolour-rgb.svg" alt="Wave Logo" class="login-logo">
+        <h2>Testimonial Repository</h2>
+        <button id="login-btn">Sign in with Google</button>
+        <p>Employee emails required</p>
+        <p id="error-msg"></p>
+    </div>
+
+    <div id="repo-screen" class="hidden">
+        <div class="top-actions">
+            <button id="open-add-modal-btn" class="btn-primary add-btn">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                Add Testimonial
+            </button>
+            <div class="search-wrapper">
+                <input type="text" id="search-bar" placeholder="Search by name, quote, or tag…">
+                    <button id="clear-search-btn" title="Clear search">
+                        <span class="clear-icon">&times;</span> Clear
+                    </button>
+                <div id="search-suggestions"></div>
+            </div>
+            <div class="search-option">
+                <input type="checkbox" id="transcript-search-checkbox" class="checkbox-label">
+                <label for="transcript-search-checkbox" class="checkbox-label">Include transcript</label>
+            </div>
+        </div>
+
+        <div id="testimonial-grid" class="testimonial-grid"></div>
+    </div>
+
+    <div id="add-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Add New Testimonial</h3>
+                <button id="close-modal-btn" class="modal-close-btn"><span>&times;</span></button>
+            </div>
+            <div class="modal-body">
+                <form id="add-testimonial-form">
+                    <div class="form-group">
+                        <label for="interviewee-name">Interviewee Name</label>
+                        <input type="text" id="interviewee-name" placeholder="Interviewee Name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="business-name">Business Name</label>
+                        <input type="text" id="business-name" placeholder="Business Name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="pull-quote">Pull Quote</label>
+                        <textarea id="pull-quote" placeholder="Pull Quote" rows="3" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="image-url">Image URL</label>
+                        <input type="url" id="image-url" placeholder="Headshot or Logo Image URL (optional)">
+                    </div>
+                    <div class="form-group">
+                        <label for="frame-url">Google Video Link</label>
+                        <input type="url" id="frame-url" placeholder="Google Video Link (optional)">
+                    </div>
+                    <div class="form-group">
+                        <label for="drive-url">Google Drive Folder Link</label>
+                        <input type="url" id="drive-url" placeholder="Google Drive Link (optional)">
+                    </div>
+                    <div class="form-group">
+                        <label for="website-video-edit-url">Website Video-Edit</label>
+                        <input type="url" id="website-video-edit-url" placeholder="Website Video-Edit URL (optional)">
+                    </div>
+                    <div class="form-group">
+                        <label for="transcript">Full Transcript</label>
+                        <textarea id="transcript" placeholder="Paste Full Transcript (.txt) Here" rows="6"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="tags">Tags (comma separated)</label>
+                        <input type="text" id="tags" placeholder="Tags (comma separated)">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <p id="upload-status" class="status-text"></p>
+                <button form="add-testimonial-form" type="submit" class="btn-primary">Save to Database</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="detail-screen" class="hidden">
+        <div class="detail-nav">
+            <button id="back-btn" class="btn-ghost">&larr; Back to Repository</button>
+            <div class="detail-actions">
+                <button id="detail-edit-btn" class="btn-ghost">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg>
+                    Edit
+                </button>
+                <button id="detail-delete-btn" class="btn-ghost danger">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+                    Delete
+                </button>
+            </div>
+        </div>
+        <div id="detail-content"></div>
+    </div>
+
+    <div id="edit-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Edit Testimonial</h3>
+                <button id="close-edit-modal-btn" class="modal-close-btn"><span>&times;</span></button>
+            </div>
+            <div class="modal-body">
+                <form id="edit-testimonial-form">
+                    <div class="form-group">
+                        <label for="edit-interviewee-name">Interviewee Name</label>
+                        <input type="text" id="edit-interviewee-name" placeholder="Interviewee Name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-business-name">Business Name</label>
+                        <input type="text" id="edit-business-name" placeholder="Business Name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-pull-quote">Pull Quote</label>
+                        <textarea id="edit-pull-quote" rows="3" placeholder="Pull Quote" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-image-url">Image URL</label>
+                        <input type="url" id="edit-image-url" placeholder="Headshot or Logo Image URL (optional)">
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-frame-url">Google Video Link</label>
+                        <input type="url" id="edit-frame-url" placeholder="Google Video Link (optional)">
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-drive-url">Google Drive Folder Link</label>
+                        <input type="url" id="edit-drive-url" placeholder="Google Drive Link (optional)">
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-website-video-edit-url">Website Video-Edit</label>
+                        <input type="url" id="edit-website-video-edit-url" placeholder="Website Video-Edit URL (optional)">
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-transcript">Full Transcript</label>
+                        <textarea id="edit-transcript" rows="6" placeholder="Transcript"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-tags">Tags (comma separated)</label>
+                        <input type="text" id="edit-tags" placeholder="Tags (comma separated)">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <p id="edit-status" class="status-text"></p>
+                <button form="edit-testimonial-form" type="submit" class="btn-primary">Update Testimonial</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="delete-modal" class="modal-overlay">
+        <div class="modal-content delete-modal-content">
+            <h3>Delete Testimonial</h3>
+            <p>Are you sure you want to delete this testimonial? This action cannot be undone.</p>
+            <div class="modal-actions-row">
+                <button id="cancel-delete-btn" class="btn-ghost">Cancel</button>
+                <button id="confirm-delete-btn" class="btn-primary danger-btn">Delete</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="admin-contact-modal" class="modal-overlay">
+        <div class="modal-content info-modal-content">
+            <h3>Admin Action Required</h3>
+            <p>Deleting testimonials requires administrator privileges. Please contact an admin to perform this action.</p>
+            <div id="admin-email-list">
+                <!-- Admin emails will be injected here by JS -->
+            </div>
+            <button id="close-admin-contact-modal-btn" class="btn-primary">Got it</button>
+        </div>
+    </div>
+
+    <script type="module">
+        import Sortable from 'https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/modular/sortable.esm.js';
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+        import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged }
+        from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+        import { getFirestore, collection, addDoc, serverTimestamp, getDocs, query, orderBy, doc, getDoc, updateDoc, deleteDoc }
+        from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+
+        // Firebase Config
+        const firebaseConfig = {
+          apiKey: "AIzaSyDNiri7_fQfAF-gOSEBvyfS4v9ZnoJ1O1w",
+          authDomain: "wave-testimonials.firebaseapp.com",
+          projectId: "wave-testimonials",
+          storageBucket: "wave-testimonials.firebasestorage.app",
+          messagingSenderId: "752388326563",
+          appId: "1:752388326563:web:7371a254409949dda46b16",
+          measurementId: "G-1PZTSKW015"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const provider = new GoogleAuthProvider();
+        const db = getFirestore(app);
+
+        // UI Elements
+        const mainHeader = document.getElementById('main-header');
+        const loginBtn = document.getElementById('login-btn');
+        const logoutBtn = document.getElementById('logout-btn');
+        const loginScreen = document.getElementById('login-screen');
+        const repoScreen = document.getElementById('repo-screen');
+        const detailScreen = document.getElementById('detail-screen');
+        const errorMsg = document.getElementById('error-msg');
+        const detailEditBtn = document.getElementById('detail-edit-btn');
+        const detailDeleteBtn = document.getElementById('detail-delete-btn');
+        const editModal = document.getElementById('edit-modal');
+        const closeEditModalBtn = document.getElementById('close-edit-modal-btn');
+        const deleteModal = document.getElementById('delete-modal');
+        const cancelDeleteBtn = document.getElementById('cancel-delete-btn');
+        const confirmDeleteBtn = document.getElementById('confirm-delete-btn');
+        const userAvatar = document.getElementById('user-avatar');
+        const userInfo = document.getElementById('user-info');
+        const userMenuDropdown = document.getElementById('user-menu-dropdown');
+        const userName = document.getElementById('user-name');
+        const themeToggleBtn = document.getElementById('theme-toggle-btn');
+        const adminContactModal = document.getElementById('admin-contact-modal');
+        const closeAdminContactModalBtn = document.getElementById('close-admin-contact-modal-btn');
+        const adminEmailList = document.getElementById('admin-email-list');
+
+        // --- Admin & Security ---
+        const ADMIN_EMAILS = ['jfilleti@waveapps.com']; // Add admin emails here
+        let currentUserIsAdmin = false;
+
+        // Layout Functions
+        function setHeaderLarge() {
+            mainHeader.classList.add('header-large');
+        }
+        function setHeaderSmall() {
+            mainHeader.classList.add('header-large');
+        }
+
+        // Dark Mode Logic
+        function applyTheme(theme) {
+            if (theme === 'dark') {
+                document.body.classList.add('dark');
+                themeToggleBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg> Light Mode`;
+            } else {
+                document.body.classList.remove('dark');
+                themeToggleBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg> Dark Mode`;
+            }
+        }
+        themeToggleBtn.addEventListener('click', () => {
+            const newTheme = document.body.classList.contains('dark') ? 'light' : 'dark';
+            localStorage.setItem('testimonial-theme', newTheme);
+            applyTheme(newTheme);
+        });
+        applyTheme(localStorage.getItem('testimonial-theme') || 'light'); // Apply saved theme on load
+
+        // Handle Login / Logout
+        loginBtn.addEventListener('click', async () => {
+            try { await signInWithPopup(auth, provider); }
+            catch (error) { console.error("Login failed:", error); }
+        });
+        logoutBtn.addEventListener('click', () => signOut(auth));
+
+        // User menu dropdown
+        userInfo.addEventListener('click', (e) => {
+            e.stopPropagation();
+            userMenuDropdown.classList.toggle('hidden');
+            document.getElementById('user-menu-arrow').style.transform = userMenuDropdown.classList.contains('hidden') ? 'rotate(0deg)' : 'rotate(180deg)';
+        });
+
+        // Close dropdown if clicking outside
+        window.addEventListener('click', () => {
+            if (!userMenuDropdown.classList.contains('hidden')) {
+                document.getElementById('user-menu-arrow').style.transform = 'rotate(0deg)';
+                userMenuDropdown.classList.add('hidden');
+            }
+        });
+
+        // Auth State
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                const email = user.email;
+                if (email.endsWith('@waveapps.com') || email.endsWith('@hrblock.com')) {
+                    loginScreen.classList.add('hidden');
+
+                    // Check if the user is an admin
+                    currentUserIsAdmin = ADMIN_EMAILS.includes(email);
+
+                    mainHeader.classList.remove('hidden');
+                    repoScreen.classList.remove('hidden');
+                    detailScreen.classList.add('hidden');
+                    editModal.classList.remove('active');
+                    deleteModal.classList.remove('active');
+                    errorMsg.innerText = "";
+                    userAvatar.src = user.photoURL;
+                    userAvatar.style.display = 'block';
+                    userName.innerText = user.displayName;
+                    loadTestimonials();
+                    updateView();
+                } else {
+                    signOut(auth);
+                    errorMsg.innerText = "Access restricted to Wave and H&R Block employees.";
+                }
+            } else {
+                loginScreen.classList.remove('hidden');
+                currentUserIsAdmin = false; // Reset admin status on logout
+
+                mainHeader.classList.add('hidden');
+                repoScreen.classList.add('hidden');
+                detailScreen.classList.add('hidden');
+                editModal.classList.remove('active');
+                document.getElementById('user-menu-arrow').style.transform = 'rotate(0deg)';
+                userMenuDropdown.classList.add('hidden');
+                deleteModal.classList.remove('active');
+            }
+        });
+
+        // Modal Logic
+        const addModal = document.getElementById('add-modal');
+        const openAddModalBtn = document.getElementById('open-add-modal-btn');
+        const closeModalBtn = document.getElementById('close-modal-btn');
+        const addForm = document.getElementById('add-testimonial-form');
+        const uploadStatus = document.getElementById('upload-status');
+
+        openAddModalBtn.addEventListener('click', () => {
+            addModal.classList.add('active');
+            uploadStatus.innerText = ""; // Clear old statuses
+        });
+
+        closeModalBtn.addEventListener('click', () => {
+            addModal.classList.remove('active');
+            addForm.reset();
+        });
+
+        // Close modal if clicking outside the content area
+        addModal.addEventListener('click', (e) => {
+            if (e.target === addModal) {
+                addModal.classList.remove('active');
+            }
+        });
+
+        // Handle Add Form Submission
+        addForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            uploadStatus.innerText = "Saving...";
+            uploadStatus.style.color = "#1a1d2e";
+
+            try {
+                const testimonialsCol = collection(db, 'testimonials');
+                const rawTags = document.getElementById('tags').value;
+                const tagsArray = rawTags.split(',').map(tag => tag.trim()).filter(tag => tag !== "");
+
+                await addDoc(testimonialsCol, {
+                    intervieweeName: document.getElementById('interviewee-name').value,
+                    businessName: document.getElementById('business-name').value,
+                    pullQuote: document.getElementById('pull-quote').value,
+                    imageUrl: document.getElementById('image-url').value,
+                    frameUrl: document.getElementById('frame-url').value,
+                    driveUrl: document.getElementById('drive-url').value,
+                    websiteVideoEditUrl: document.getElementById('website-video-edit-url').value, // New Field
+                    tags: tagsArray,
+                    transcript: document.getElementById('transcript').value,
+                    createdAt: serverTimestamp(),
+                    order: Date.now() // Set initial order using a timestamp
+                });
+
+                uploadStatus.style.color = "var(--clr-success)";
+                uploadStatus.innerText = "Success! Testimonial added.";
+
+                // Refresh grid and close modal
+                await loadTestimonials();
+                setTimeout(() => {
+                    addModal.classList.remove('active');
+                    addForm.reset();
+                }, 1500);
+
+            } catch (error) {
+                console.error("Error adding document: ", error);
+                uploadStatus.innerText = "Error: " + error.message;
+                uploadStatus.style.color = "var(--clr-danger)";
+            }
+        });
+
+        // Grid & Search
+        const gridContainer = document.getElementById('testimonial-grid');
+        const searchBar = document.getElementById('search-bar');
+        let allTestimonials = [];
+        let allTags = new Set();
+        let currentActiveId = null;
+
+        async function loadTestimonials() {
+            gridContainer.innerHTML = "<p>Loading testimonials...</p>";
+            try {
+                // Fetch all documents without a specific order from Firestore.
+                // We will sort them on the client-side to handle missing 'order' fields.
+                const q = query(collection(db, 'testimonials'));
+                const querySnapshot = await getDocs(q);
+
+                allTestimonials = [];
+                querySnapshot.forEach((doc) => {
+                    allTestimonials.push({ id: doc.id, ...doc.data() });
+                });
+
+                // Extract all unique tags for suggestions
+                allTags.clear();
+                allTestimonials.forEach(item => item.tags?.forEach(tag => allTags.add(tag)));
+
+
+                // Sort the testimonials in the browser.
+                // Items with an 'order' field will be sorted by it.
+                // Items without an 'order' field will be treated as having an infinite order value,
+                // placing them at the end of the list.
+                allTestimonials.sort((a, b) => (a.order ?? Infinity) - (b.order ?? Infinity));
+                renderGrid(allTestimonials, true); // Animate on initial load
+
+                initializeDragAndDrop(); // Initialize SortableJS after rendering
+            } catch (error) {
+                console.error("Error loading testimonials:", error);
+                gridContainer.innerHTML = "<p style='color:red;'>Failed to load database.</p>";
+            }
+        }
+
+        function renderGrid(dataArray, withAnimation = false) {
+            gridContainer.innerHTML = "";
+
+            if (dataArray.length === 0) {
+                gridContainer.innerHTML = "<p>No matching testimonials found.</p>";
+                return;
+            }
+
+            dataArray.forEach((data, index) => {
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.dataset.id = data.id; // Add data-id for SortableJS
+                const displayImg = data.imageUrl || 'https://placehold.co/600x400/e5e7eb/a3a8b8?text=No+Image';
+
+                card.innerHTML = `
+                    <div class="card-hover-actions">
+                        <button class="card-hover-btn edit" data-id="${data.id}" title="Edit Testimonial">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg>
+                        </button>
+                        <button class="card-hover-btn delete" data-id="${data.id}" title="Delete Testimonial">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+                        </button>
+                    </div>
+                    <div class="card-image-container">
+                        <img src="${displayImg}" alt="${data.intervieweeName}" class="card-image">
+                    </div>
+                    <div class="card-body">
+                        <h3>${data.intervieweeName}</h3>
+                        <p class="business">${data.businessName}</p>
+                        <p class="quote">"${data.pullQuote}"</p>
+                    </div>
+                `;
+
+                // Apply staggered animation only when specified
+                if (withAnimation) {
+                    card.style.animation = `card-load-in 0.4s cubic-bezier(.4,0,.2,1) forwards`;
+                    card.style.animationDelay = `${index * 0.05}s`;
+                    card.style.opacity = 0; // Start as invisible, animation will make it visible
+                }
+                gridContainer.appendChild(card);
+            });
+        }
+
+        // Use event delegation for card clicks
+        gridContainer.addEventListener('click', (e) => {
+            const card = e.target.closest('.card');
+            if (!card) return;
+
+            const editBtn = e.target.closest('.card-hover-btn.edit');
+            const deleteBtn = e.target.closest('.card-hover-btn.delete');
+
+            if (editBtn) {
+                openEditModal(editBtn.dataset.id);
+            } else if (deleteBtn) {
+                if (currentUserIsAdmin) {
+                    currentActiveId = deleteBtn.dataset.id;
+                    deleteModal.classList.add('active');
+                } else {
+                    showAdminContactModal();
+                }
+            } else {
+                openDetail(card.dataset.id);
+            }
+        });
+
+        const suggestionsContainer = document.getElementById('search-suggestions');
+
+        searchBar.addEventListener('input', (e) => {
+            const searchTerm = e.target.value.toLowerCase();
+            const clearBtn = document.getElementById('clear-search-btn');
+
+            clearBtn.classList.toggle('visible', searchTerm.length > 0);
+
+            // --- Multi-keyword "AND" search logic ---
+            const searchKeywords = searchTerm.split(' ').filter(k => k);
+
+            // --- Suggestion Logic ---
+            if (searchTerm.length > 0 && !searchTerm.endsWith(' ')) {
+                const lastWord = searchKeywords[searchKeywords.length - 1];
+                const matchingTags = [...allTags].filter(tag => tag.toLowerCase().startsWith(lastWord));
+
+                if (matchingTags.length > 0) {
+                    suggestionsContainer.innerHTML = matchingTags.map(tag => `<div class="suggestion-item" data-tag="${tag}">${tag}</div>`).join('');
+                    suggestionsContainer.classList.add('visible');
+                } else {
+                    suggestionsContainer.classList.remove('visible');
+                }
+            } else {
+                suggestionsContainer.classList.remove('visible');
+            }
+
+            // --- Checkbox state ---
+            const includeTranscript = document.getElementById('transcript-search-checkbox').checked;
+
+            // --- Filtering Logic ---
+            const filteredData = allTestimonials.filter((data) => {
+                const tagsString = data.tags ? data.tags.join(' ') : '';
+                let searchableText = `${data.intervieweeName} ${data.businessName} ${data.pullQuote} ${tagsString}`.toLowerCase();
+
+                if (includeTranscript && data.transcript) {
+                    searchableText += ` ${data.transcript.toLowerCase()}`;
+                }
+
+                // If there are no keywords, show all testimonials
+                if (searchKeywords.length === 0) return true;
+
+                // Check that *every* keyword is present in the searchable text
+                return searchKeywords.every(keyword => searchableText.includes(keyword));
+            });
+            renderGrid(filteredData);
+        });
+
+        // Also trigger search when checkbox is toggled
+        const transcriptCheckbox = document.getElementById('transcript-search-checkbox');
+        transcriptCheckbox.addEventListener('change', () => searchBar.dispatchEvent(new Event('input')));
+
+        // Handle clicking on a suggestion
+        suggestionsContainer.addEventListener('click', (e) => {
+            if (e.target.classList.contains('suggestion-item')) {
+                const selectedTag = e.target.dataset.tag;
+                const currentSearch = searchBar.value.split(' ');
+                currentSearch.pop(); // Remove the partially typed word
+                currentSearch.push(selectedTag); // Add the full tag
+                searchBar.value = currentSearch.join(' ') + ' '; // Add a space to start the next word
+                searchBar.focus();
+                suggestionsContainer.classList.remove('visible');
+                searchBar.dispatchEvent(new Event('input')); // Re-run the search
+            }
+        });
+
+        // Drag and Drop Logic
+        function initializeDragAndDrop() {
+            // Ensure we don't initialize it multiple times
+            if (gridContainer.sortable) {
+                gridContainer.sortable.destroy();
+            }
+
+            gridContainer.sortable = Sortable.create(gridContainer, {
+                animation: 200, // ms, animation speed moving items when sorting, `0` — without animation
+                ghostClass: 'sortable-ghost', // Class name for the drop placeholder
+                onEnd: async function (evt) {
+                    // The DOM is already visually correct. Now, we update our data and persist it.
+                    const newOrderIds = Array.from(gridContainer.children).map(child => child.dataset.id);
+
+                    // 1. Update the local `allTestimonials` array to match the new DOM order.
+                    // This prevents the need for a full reload.
+                    const testimonialMap = new Map(allTestimonials.map(item => [item.id, item]));
+                    allTestimonials = newOrderIds.map(id => testimonialMap.get(id));
+
+                    // 2. Create a batch write to update all documents in Firestore efficiently.
+                    const { writeBatch } = await import("https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js");
+                    const batch = writeBatch(db);
+                    newOrderIds.forEach((id, index) => {
+                        const docRef = doc(db, "testimonials", id);
+                        batch.update(docRef, { order: index });
+                    });
+
+                    // 3. Commit the changes to the database in the background.
+                    await batch.commit();
+                },
+            });
+        }
+
+        // Clear Search Button Logic
+        document.getElementById('clear-search-btn').addEventListener('click', () => {
+            searchBar.value = '';
+            // Programmatically trigger the input event to re-filter the grid
+            const event = new Event('input', { bubbles: true });
+            searchBar.dispatchEvent(event);
+        });
+
+        // Detail Screen Logic
+        const detailContent = document.getElementById('detail-content');
+        const backBtn = document.getElementById('back-btn');
+
+        backBtn.addEventListener('click', () => {
+            history.back();
+        });
+
+        function renderVideoEmbed(url) {
+            if (!url) return 'No video link provided';
+
+            // Check for direct video file links (.mp4, .webm, .ogg, .mov)
+            const isDirectVideo = /\.(mp4|webm|ogg|mov)(\?.*)?$/i.test(url);
+            if (isDirectVideo) {
+                return `<video src="${url}" controls class="embedded-video-player" style="width:100%; height:100%; border-radius: var(--radius-lg); object-fit: cover;"></video>`;
+            }
+
+            // Check for YouTube links (share url, embed url, or regular link)
+            const ytMatch = url.match(/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/i);
+            if (ytMatch && ytMatch[1]) {
+                return `<iframe src="https://www.youtube.com/embed/${ytMatch[1]}" frameborder="0" allowfullscreen style="width:100%; height:100%; border-radius: var(--radius-lg);"></iframe>`;
+            }
+
+            // Check for Vimeo links
+            const vimeoMatch = url.match(/(?:vimeo\.com\/|player\.vimeo\.com\/video\/)(\d+)/i);
+            if (vimeoMatch && vimeoMatch[1]) {
+                return `<iframe src="https://player.vimeo.com/video/${vimeoMatch[1]}" frameborder="0" allowfullscreen style="width:100%; height:100%; border-radius: var(--radius-lg);"></iframe>`;
+            }
+
+            // Check for Google Drive links
+            const driveMatch = url.match(/drive\.google\.com\/file\/d\/([a-zA-Z0-9_-]+)(?:\/view)?/i);
+            if (driveMatch && driveMatch[1]) {
+                const videoId = driveMatch[1];
+                return `<iframe src="https://drive.google.com/file/d/${videoId}/preview" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen style="width:100%; height:100%; border-radius: var(--radius-lg);"></iframe>`;
+            }
+
+            // Default fallback for Frame.io or other presentation URLs:
+            // Load in iframe, but provide overlay button to "Open in Frame.io" in case embed fails due to security headers
+            return `
+                <div class="iframe-container">
+                    <iframe src="${url}" frameborder="0" allow="autoplay; fullscreen" style="width:100%; height:100%; border-radius: var(--radius-lg);"></iframe>
+                    <div class="iframe-overlay-bar">
+                        <a href="${url}" target="_blank" class="btn-ghost-small">↗ Open in Frame.io</a>
+                    </div>
+                </div>
+            `;
+        }
+
+       async function openDetail(id) {
+            history.pushState({ testimonialId: id }, `Testimonial: ${id}`, `?testimonial=${id}`);
+            updateView();
+        }
+
+        async function updateView() {
+            const params = new URLSearchParams(window.location.search);
+            const testimonialId = params.get('testimonial');
+
+            if (testimonialId) {
+                currentActiveId = testimonialId;
+                repoScreen.classList.add('hidden');
+                detailScreen.classList.remove('hidden');
+                setHeaderSmall();
+                detailContent.innerHTML = "<p>Loading...</p>";
+
+                try {
+                    const docRef = doc(db, 'testimonials', testimonialId);
+                    const docSnap = await getDoc(docRef);
+
+                    if (docSnap.exists()) {
+                        const data = docSnap.data();
+                        const tagsList = data.tags && data.tags.length > 0
+                            ? data.tags.map(tag => `<li><button class="clickable-tag" data-tag="${tag}">${tag}</button></li>`).join('')
+                            : '<li style="color:var(--clr-text-muted);font-size:.85rem;">No tags</li>';
+
+                        detailContent.innerHTML = `
+                            <h1 class="detail-header-name">${data.intervieweeName}</h1>
+                            <p class="detail-header-biz">${data.businessName}</p>
+
+                            <div class="detail-layout">
+                                <div class="detail-left-column">
+                                    <div class="quick-links-box">
+                                        <h4>Quick Links</h4>
+                                        ${data.frameUrl ? `<a href="${data.frameUrl}" target="_blank"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>Google Video</a>` : ''}
+                                        ${data.driveUrl ? `<a href="${data.driveUrl}" target="_blank"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>Drive Folder</a>` : ''}
+                                        ${data.transcript ? `<a href="#" id="download-transcript-btn"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>Transcript</a>` : ''}
+                                        ${!data.frameUrl && !data.driveUrl && !data.transcript ? '<span style="color:var(--clr-text-muted);font-size:.9rem;">No links provided</span>' : ''}
+                                    </div>
+                                    <div class="quick-links-box">
+                                        <h4>Tags</h4>
+                                        <ul>${tagsList}</ul>
+                                    </div>
+                                </div>
+
+                                <div class="detail-main">
+                                    <div class="${data.frameUrl ? 'video-placeholder' : 'video-placeholder empty'}">
+                                        ${data.frameUrl ? renderVideoEmbed(data.frameUrl) : 'No video link provided'}
+                                    </div>
+
+                                    <blockquote class="pull-quote">${data.pullQuote}</blockquote>
+
+                                    ${data.websiteVideoEditUrl ? `
+                                    <div class="website-video-edit-box">
+                                        <h3>Website Video-Edit</h3>
+                                        <div class="video-edit-player">
+                                            <video src="${data.websiteVideoEditUrl}" controls style="width:100%; height:auto; border-radius:var(--radius-md);"></video>
+                                        </div>
+                                    </div>
+                                    ` : ''}
+
+                                    ${data.transcript ? `
+                                    <div class="transcript-box">
+                                        <h3>Full Transcript</h3>
+                                        <div class="transcript-body">${data.transcript}</div>
+                                    </div>
+                                    ` : ''}
+                                </div>
+                            </div>
+                        `;
+
+                        const tagElements = detailContent.querySelectorAll('.clickable-tag');
+                        tagElements.forEach(tagEl => {
+                            tagEl.addEventListener('click', (e) => {
+                                const selectedTag = e.target.getAttribute('data-tag');
+                                history.pushState(null, "Testimonial Repository", window.location.pathname);
+                                updateView();
+                                searchBar.value = selectedTag;
+                                searchBar.dispatchEvent(new Event('input'));
+                            });
+                        });
+
+                        // Add event listener for the new download button
+                        const downloadBtn = detailContent.querySelector('#download-transcript-btn');
+                        if (downloadBtn) {
+                            downloadBtn.addEventListener('click', (e) => {
+                                e.preventDefault(); // Prevent the link from navigating
+
+                                // 1. Create a Blob from the transcript text
+                                const blob = new Blob([data.transcript], { type: 'text/plain' });
+
+                                // 2. Create a temporary URL for the Blob
+                                const url = URL.createObjectURL(blob);
+
+                                // 3. Create a temporary link element to trigger the download
+                                const tempLink = document.createElement('a');
+                                tempLink.href = url;
+                                const safeFilename = data.intervieweeName.replace(/[^a-z0-9]/gi, '_').toLowerCase();
+                                tempLink.download = `transcript_${safeFilename}.txt`; // e.g., transcript_jane_doe.txt
+                                document.body.appendChild(tempLink);
+                                tempLink.click();
+
+                                // 4. Clean up by removing the temporary link and revoking the URL
+                                document.body.removeChild(tempLink);
+                                URL.revokeObjectURL(url);
+                            });
+                        }
+                    } else {
+                        detailContent.innerHTML = "<p>Testimonial not found.</p>";
+                    }
+                } catch (error) {
+                    console.error("Error loading detail:", error);
+                    detailContent.innerHTML = "<p style='color:red;'>Failed to load details.</p>";
+                }
+            } else {
+                detailScreen.classList.add('hidden');
+                repoScreen.classList.remove('hidden');
+                setHeaderLarge();
+                detailContent.innerHTML = ""; // Stop video playback
+
+                // Re-render the grid with animation when returning to the main view
+                // This fixes the bug where animation wouldn't run after a search.
+                renderGrid(allTestimonials, true);
+            }
+        }
+
+        function showAdminContactModal() {
+            // Populate the list of admin emails
+            adminEmailList.innerHTML = `
+                <p style="font-size: .75rem; font-weight: 700; color: var(--clr-text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: .5rem;">Administrators</p>
+                <div style="background: var(--clr-surface-2); border: 1px solid var(--clr-border); border-radius: var(--radius-md); padding: .75rem 1rem; text-align: left;">
+                    ${ADMIN_EMAILS.map(email => `<a href="mailto:${email}" style="color: var(--clr-primary); font-weight: 500; display: block;">${email}</a>`).join('')}
+                </div>
+            `;
+            adminContactModal.classList.add('active');
+        }
+
+        closeAdminContactModalBtn.addEventListener('click', () => {
+            adminContactModal.classList.remove('active');
+        });
+
+
+
+        window.addEventListener('popstate', updateView);
+
+
+        // Edit Screen Modal Logic
+        const editForm = document.getElementById('edit-testimonial-form');
+        const editStatus = document.getElementById('edit-status');
+
+        async function openEditModal(id) {
+            currentActiveId = id;
+            editModal.classList.add('active');
+            editStatus.innerText = "Loading data...";
+            editStatus.style.color = "var(--clr-text-main)";
+
+            try {
+                const docRef = doc(db, 'testimonials', currentActiveId);
+                const docSnap = await getDoc(docRef);
+
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+                    document.getElementById('edit-interviewee-name').value = data.intervieweeName || '';
+                    document.getElementById('edit-business-name').value = data.businessName || '';
+                    document.getElementById('edit-pull-quote').value = data.pullQuote || '';
+                    document.getElementById('edit-image-url').value = data.imageUrl || '';
+                    document.getElementById('edit-frame-url').value = data.frameUrl || '';
+                    document.getElementById('edit-drive-url').value = data.driveUrl || '';
+                    document.getElementById('edit-website-video-edit-url').value = data.websiteVideoEditUrl || ''; // Populate new field
+                    document.getElementById('edit-transcript').value = data.transcript || '';
+                    document.getElementById('edit-tags').value = data.tags ? data.tags.join(', ') : '';
+                    editStatus.innerText = "";
+                }
+            } catch (error) {
+                console.error("Error fetching for edit:", error);
+                editStatus.innerText = "Error loading data.";
+                editStatus.style.color = "var(--clr-danger)";
+            }
+        }
+
+        closeEditModalBtn.addEventListener('click', () => {
+            editModal.classList.remove('active');
+            editForm.reset();
+        });
+
+        // Close edit modal if clicking outside the content area
+        editModal.addEventListener('click', (e) => {
+            if (e.target === editModal) {
+                editModal.classList.remove('active');
+            }
+        });
+
+        editForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            if (!currentActiveId) return;
+
+            editStatus.innerText = "Updating database...";
+            editStatus.style.color = "var(--clr-success)";
+
+            try {
+                const rawTags = document.getElementById('edit-tags').value;
+                const tagsArray = rawTags.split(',').map(tag => tag.trim()).filter(tag => tag !== "");
+
+                const docRef = doc(db, 'testimonials', currentActiveId);
+                await updateDoc(docRef, {
+                    intervieweeName: document.getElementById('edit-interviewee-name').value,
+                    businessName: document.getElementById('edit-business-name').value,
+                    pullQuote: document.getElementById('edit-pull-quote').value,
+                    imageUrl: document.getElementById('edit-image-url').value,
+                    frameUrl: document.getElementById('edit-frame-url').value,
+                    driveUrl: document.getElementById('edit-drive-url').value,
+                    websiteVideoEditUrl: document.getElementById('edit-website-video-edit-url').value, // New Field
+                    transcript: document.getElementById('edit-transcript').value,
+                    tags: tagsArray,
+                    // Note: 'order' is not edited here, it's only managed by drag-and-drop
+                });
+
+                editStatus.innerText = "Success! Updating testimonial details...";
+
+                await loadTestimonials();
+                await updateView();
+
+                setTimeout(() => {
+                    editModal.classList.remove('active');
+                    editForm.reset();
+                }, 1000);
+
+            } catch (error) {
+                console.error("Error updating document:", error);
+                editStatus.innerText = "Error: " + error.message;
+                editStatus.style.color = "var(--clr-danger)";
+            }
+        });
+
+        // Detail Edit and Delete Logic
+        detailEditBtn.addEventListener('click', () => {
+            if (currentActiveId) {
+                openEditModal(currentActiveId);
+            }
+        });
+
+        detailDeleteBtn.addEventListener('click', () => {
+            if (currentActiveId) {
+                if (currentUserIsAdmin) {
+                    deleteModal.classList.add('active');
+                } else {
+                    showAdminContactModal();
+                }
+            }
+        });
+        cancelDeleteBtn.addEventListener('click', () => {
+            deleteModal.classList.remove('active');
+        });
+
+        // Close delete modal if clicking outside the content area
+        deleteModal.addEventListener('click', (e) => {
+            if (e.target === deleteModal) {
+                deleteModal.classList.remove('active');
+            }
+        });
+
+        confirmDeleteBtn.addEventListener('click', async () => {
+            if (!currentActiveId) return;
+
+            try {
+                const docRef = doc(db, 'testimonials', currentActiveId);
+                await deleteDoc(docRef);
+
+                deleteModal.classList.remove('active');
+
+                history.pushState(null, "Testimonial Repository", window.location.pathname);
+                updateView();
+
+                // Refresh list
+                await loadTestimonials();
+            } catch (error) {
+                console.error("Error deleting testimonial:", error);
+                alert("Failed to delete testimonial: " + error.message);
+            }
+        });
+
+    </script>
+</body>
+</html>
