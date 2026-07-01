@@ -833,21 +833,22 @@
 
       .video-placeholder {
         width: 100%;
-        height: 520px;
-        background: #0d0f1a;
-        border-radius: var(--radius-lg);
-        border: 1px solid var(--clr-border);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin-bottom: 2rem;
-        font-size: .95rem;
-        color: var(--clr-text-muted);
         position: relative;
+        padding-top: 56.25%; /* 16:9 Aspect Ratio */
+        height: 0;
+        /* background: #0d0f1a; */
+        /* border-radius: var(--radius-lg); */
+        border: 1px solid var(--clr-border);
+        margin-bottom: 2rem;
         overflow: hidden;
       }
       .video-placeholder.empty {
         background: linear-gradient(135deg, #eef1f7 0%, #e0e5f2 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: .95rem;
+        color: var(--clr-text-muted);
       }
       .iframe-container {
         width: 100%;
@@ -855,6 +856,7 @@
         position: relative;
         border-radius: var(--radius-lg);
         overflow: hidden;
+
       }
       .iframe-overlay-bar {
         position: absolute;
@@ -961,13 +963,14 @@
       #edit-testimonial-form { max-width: 100%; margin-bottom: 2rem; }
 
       /* ── RESPONSIVE ── */
-      @media (max-width: 680px) {
+      @media (max-width: 900px) {
         .detail-layout { flex-direction: column; }
         .detail-left-column { width: 100%; }
         .detail-main { order: -1; } /* This moves the main content to the top on mobile */
         .header-left { flex-direction: column; align-items: flex-start; gap: 0.5rem; }
         .header-large { padding: 2rem 0 1.5rem; }
         #header-logo { height: 14px; } /* Make logo smaller on mobile */
+        .video-placeholder {padding-top: 100%; height: 0;} /* Maintain aspect ratio on mobile */
       }
       @media (max-width: 600px) {
         .modal-overlay {
@@ -1683,7 +1686,7 @@
             const driveMatch = url.match(/drive\.google\.com\/file\/d\/([a-zA-Z0-9_-]+)(?:\/view)?/i);
             if (driveMatch && driveMatch[1]) {
                 const videoId = driveMatch[1];
-                return `<iframe src="https://drive.google.com/file/d/${videoId}/preview" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen scrolling="no" style="width:100%; height:100%; border-radius: var(--radius-lg); overflow: hidden;"></iframe>`;
+                return `<iframe src="https://drive.google.com/file/d/${videoId}/preview" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border-radius: var(--radius-lg);"></iframe>`;
             }
 
             // Default fallback for Frame.io or other presentation URLs:
