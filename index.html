@@ -498,7 +498,6 @@
       }
       #admin-email-list {
         margin-bottom: 1.75rem;
-
       }
       .danger-btn {
         background: var(--clr-danger);
@@ -966,6 +965,11 @@
         .header-large { padding: 2rem 0 1.5rem; }
         #header-logo { height: 14px; } /* Make logo smaller on mobile */
       }
+      @media (max-width: 600px) {
+        .modal-overlay {
+          align-items: flex-start; /* Align modal to top on small screens */
+        }
+      }
       /* ── USER MENU ELEMENTS (was inline style) ── */
       .user-avatar {
         width: 32px;
@@ -1253,7 +1257,7 @@
         const adminEmailList = document.getElementById('admin-email-list');
 
         // --- Admin & Security ---
-        const ADMIN_EMAILS = ['jfilleti@waveapps.com']; // Add admin emails here
+        const ADMIN_EMAILS = ['jon.elliot@waveapps.com']; // Add admin emails here
         let currentUserIsAdmin = false;
 
         // Layout Functions
