@@ -605,14 +605,6 @@
         transition: var(--transition);
         position: relative; /* For the hover edit button */
       }
-      .card:hover {
-        transform: translateY(-4px);
-        box-shadow: var(--shadow-md);
-        border-color: var(--clr-primary);
-      }
-      .card:hover .card-image {
-        transform: scale(1.04);
-      }
 
 
       .card-image-container {
@@ -671,11 +663,6 @@
         pointer-events: none;
         z-index: 5;
       }
-      .card:hover .card-hover-actions {
-        opacity: 1;
-        transform: translateY(0);
-        pointer-events: auto;
-      }
       .card-hover-btn {
         background: rgba(255,255,255,0.8);
         backdrop-filter: blur(4px);
@@ -690,14 +677,31 @@
         box-shadow: var(--shadow-sm);
         transition: var(--transition);
       }
-      .card-hover-btn:hover {
-        transform: scale(1.1);
-        box-shadow: var(--shadow-md);
-      }
-      .card-hover-btn.delete:hover {
-        background: var(--clr-danger);
-        color: white;
-        border-color: var(--clr-danger);
+
+      /* --- HOVER STYLES (for mouse devices only) --- */
+      @media (hover: hover) {
+        .card:hover {
+          transform: translateY(-4px);
+          box-shadow: var(--shadow-md);
+          border-color: var(--clr-primary);
+        }
+        .card:hover .card-image {
+          transform: scale(1.04);
+        }
+        .card:hover .card-hover-actions {
+          opacity: 1;
+          transform: translateY(0);
+          pointer-events: auto;
+        }
+        .card-hover-btn:hover {
+          transform: scale(1.1);
+          box-shadow: var(--shadow-md);
+        }
+        .card-hover-btn.delete:hover {
+          background: var(--clr-danger);
+          color: white;
+          border-color: var(--clr-danger);
+        }
       }
 
       /* Card Load-in Animation */
