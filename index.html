@@ -972,6 +972,19 @@
          .modal-content {
           max-height: calc(100vh - 12rem); /* Enssure modal fits within viewport padding */
          }
+        #delete-modal.modal-overlay {
+          align-items: center; /* Keep delete modal vertically centered */
+        }
+        .user-name {
+          display: none; /* Hide user name on mobile */
+        }
+        #back-btn .back-text {
+          display: none; /* Hide "to Repository" text */
+        }
+        #back-btn::after {
+          content: 'Back'; /* Add "Back" text for mobile */
+          margin-left: 0.4rem;
+        }
       }
       /* ── USER MENU ELEMENTS (was inline style) ── */
       .user-avatar {
@@ -1121,7 +1134,7 @@
 
     <div id="detail-screen" class="hidden">
         <div class="detail-nav">
-            <button id="back-btn" class="btn-ghost">&larr; Back to Repository</button>
+            <button id="back-btn" class="btn-ghost">&larr;<span class="back-text"> Back to Repository</span></button>
             <div class="detail-actions">
                 <button id="detail-edit-btn" class="btn-ghost">
                     <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg>
@@ -1260,7 +1273,7 @@
         const adminEmailList = document.getElementById('admin-email-list');
 
         // --- Admin & Security ---
-        const ADMIN_EMAILS = ['jon.elliot@waveapps.com']; // Add admin emails here
+        const ADMIN_EMAILS = ['jfilleti@waveapps.com']; // Add admin emails here
         let currentUserIsAdmin = false;
 
         // Layout Functions
@@ -1591,19 +1604,17 @@
                 gridContainer.sortable.destroy();
             }
 
+            // Initialize SortableJS for drag-and-drop reordering
             gridContainer.sortable = Sortable.create(gridContainer, {
-                animation: 200, // ms, animation speed moving items when sorting, `0` — without animation
-                ghostClass: 'sortable-ghost', // Class name for the drop placeholder
+                animation: 200,
+                ghostClass: 'sortable-ghost',
+                // Disable functionality based on screen width and admin status
+                disabled: window.innerWidth <= 680 || !currentUserIsAdmin,
                 onEnd: async function (evt) {
-                    // The DOM is already visually correct. Now, we update our data and persist it.
                     const newOrderIds = Array.from(gridContainer.children).map(child => child.dataset.id);
-
-                    // 1. Update the local `allTestimonials` array to match the new DOM order.
-                    // This prevents the need for a full reload.
                     const testimonialMap = new Map(allTestimonials.map(item => [item.id, item]));
                     allTestimonials = newOrderIds.map(id => testimonialMap.get(id));
 
-                    // 2. Create a batch write to update all documents in Firestore efficiently.
                     const { writeBatch } = await import("https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js");
                     const batch = writeBatch(db);
                     newOrderIds.forEach((id, index) => {
@@ -1611,10 +1622,20 @@
                         batch.update(docRef, { order: index });
                     });
 
-                    // 3. Commit the changes to the database in the background.
                     await batch.commit();
                 },
             });
+
+            // Use a media query listener to dynamically enable/disable sorting
+            const mediaQuery = window.matchMedia('(max-width: 680px)');
+            function handleResize(e) {
+                if (gridContainer.sortable) {
+                    // Disable if mobile OR if user is not an admin
+                    gridContainer.sortable.option('disabled', e.matches || !currentUserIsAdmin);
+                }
+            }
+            mediaQuery.addEventListener('change', handleResize); // Listen for changes
+            handleResize(mediaQuery); // Initial check
         }
 
         // Clear Search Button Logic
