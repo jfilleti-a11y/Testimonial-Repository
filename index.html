@@ -62,7 +62,7 @@
 
       /* ── DARK MODE COLORS ── */
       body.dark {
-        --clr-primary:       #7b89ff;
+        --clr-primary:       #4f5fe8;
         --clr-primary-light: #262b48;
         --clr-primary-hover: #94a0ff;
         --clr-bg:            #0f1019;
@@ -886,7 +886,7 @@
         padding-top: 56.25%; /* 16:9 Aspect Ratio */
         height: 0;
         /* background: #0d0f1a; */
-        /* border-radius: var(--radius-lg); */
+        border-radius: var(--radius-lg);
         /* border: 1px solid var(--clr-border); */
         margin-bottom: 2rem;
         overflow: hidden;
@@ -984,7 +984,7 @@
       }
 
       .quick-links-box {
-        background: var(--clr-surface-2);
+        background: var(--clr-surface);
         border: 1px solid var(--clr-border);
         border-radius: var(--radius-lg);
         padding: 1rem 1rem;
@@ -1057,7 +1057,7 @@
       /* ── EDIT SCREEN ── */
       #edit-screen { max-width: 560px; }
       #edit-screen h2 { font-size: 1.8rem; margin-bottom: 1.5rem; }
-      #edit-testimonial-form { max-width: 100%; margin-bottom: 2rem; }
+      #edit-testimonial-form { max-width: 100%; }
 
       /* Loading Spinner Animation */
       .loading-spinner {
@@ -1273,7 +1273,7 @@
                     </div>
                     <div class="form-group">
                         <label for="transcript">Full Transcript</label>
-                        <textarea id="transcript" placeholder="Paste Full Transcript (.txt) Here" rows="6"></textarea>
+                        <textarea id="transcript" placeholder="Paste Full Transcript (.txt) Here" rows="6" required></textarea>
                     </div>
                     <div class="form-group">
                         <label for="tags">Tags (comma separated)</label>
@@ -1343,20 +1343,51 @@
                     </div>
                     <div class="form-group">
                         <label for="edit-transcript">Full Transcript</label>
-                        <textarea id="edit-transcript" rows="6" placeholder="Transcript"></textarea>
+                        <textarea id="edit-transcript" rows="6" placeholder="Transcript" required></textarea>
                     </div>
+
                     <div class="form-group">
                         <label for="edit-ai-summary">Transcript Summary</label>
                         <textarea id="edit-ai-summary" rows="5" placeholder="AI Summary text will load here..."></textarea>
-
-                        <button type="button" id="regenerate-ai-btn" class="btn-ghost primary" style="margin-top: 0.5rem; align-self: flex-start; padding: 0.35rem 0.75rem; font-size: 0.8rem;">
-                            Generate with AI
-                        </button>
-                        <span id="ai-generation-status" style="font-size: 0.82rem; margin-top: 0.25rem; display: flex; align-items: center; gap: 0.4rem;"></span>
                     </div>
+
                     <div class="form-group">
                         <label for="edit-tags">Tags (comma separated)</label>
                         <input type="text" id="edit-tags" placeholder="Tags (comma separated)">
+                    </div>
+
+                    <div class="form-group" style="margin-top: 0.5rem; margin-bottom: 1rem;">
+                        <button type="button" id="regenerate-ai-btn" class="btn-ghost primary" style="align-self: flex-start; padding: 0.35rem 0.75rem; font-size: 0.8rem;">
+                            Analyze Content with AI
+                        </button>
+                        <span id="ai-generation-status" style="font-size: 0.82rem; margin-top: 0.25rem; display: flex; align-items: center; gap: 0.4rem;"></span>
+                    </div>
+
+                    <div id="ai-staging-area" style="display: none; background: var(--clr-surface-2); border: 1px dashed var(--clr-primary); border-radius: var(--radius-md); padding: 1.25rem; margin-bottom: 1.25rem;">
+                        <h4 style="margin: 0 0 1rem 0; font-size: 0.8rem; color: var(--clr-primary); text-transform: uppercase; letter-spacing: 0.05em; display: flex; align-items: center; gap: 0.3rem;">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L14.5 9L22 11.5L14.5 14L12 21L9.5 14L2 11.5L9.5 9L12 2Z"></path></svg>
+                            AI Analysis Suggestions (Draft)
+                        </h4>
+
+                        <div id="staged-summary-row" style="margin-bottom: 1.25rem; border-bottom: 1px dashed var(--clr-border); padding-bottom: 1rem;">
+                            <p style="font-size: 0.82rem; font-weight: 700; color: var(--clr-text-main); margin: 0 0 0.35rem 0;">Suggested Summary:</p>
+                            <p id="staged-summary-text" style="font-size: 0.85rem; color: var(--clr-text-muted); margin: 0 0 0.5rem 0; background: var(--clr-surface); padding: 0.75rem; border-radius: var(--radius-xs); border: 1px solid var(--clr-border); white-space: pre-wrap; line-height: 1.5; font-style: normal;"></p>
+
+                            <div style="display: flex; gap: 0.5rem;">
+                                <button type="button" id="apply-summary-btn" class="btn-ghost primary" style="padding: 0.3rem 0.75rem; font-size: 0.75rem; display: inline-flex; align-items: center; gap: 0.2rem;">✅ Apply Summary</button>
+                                <button type="button" id="dismiss-summary-btn" class="btn-ghost danger" style="padding: 0.3rem 0.75rem; font-size: 0.75rem; display: inline-flex; align-items: center; gap: 0.2rem;">❌ Dismiss</button>
+                            </div>
+                        </div>
+
+                        <div id="staged-tags-row" style="margin-bottom: 0.25rem;">
+                            <p style="font-size: 0.82rem; font-weight: 700; color: var(--clr-text-main); margin: 0 0 0.35rem 0;">Suggested Tags:</p>
+                            <p id="staged-tags-text" style="font-size: 0.85rem; color: var(--clr-text-muted); margin: 0 0 0.5rem 0; background: var(--clr-surface); padding: 0.5rem 0.75rem; border-radius: var(--radius-xs); border: 1px solid var(--clr-border); font-family: monospace;"></p>
+
+                            <div style="display: flex; gap: 0.5rem;">
+                                <button type="button" id="apply-tags-btn" class="btn-ghost primary" style="padding: 0.3rem 0.75rem; font-size: 0.75rem; display: inline-flex; align-items: center; gap: 0.2rem;">✅ Apply Tags</button>
+                                <button type="button" id="dismiss-tags-btn" class="btn-ghost danger" style="padding: 0.3rem 0.75rem; font-size: 0.75rem; display: inline-flex; align-items: center; gap: 0.2rem;">❌ Dismiss</button>
+                            </div>
+                        </div>
                     </div>
                 </form>
             </div>
@@ -1405,25 +1436,30 @@
 
 
 
-        // 1. Add 'apiKeyPassedIn' as a second argument here
-        async function generateAISummary(transcript, apiKeyPassedIn) {
-            if (!transcript || transcript.trim() === "") return "";
+        // Replace the old generateAISummary block with this optimized script
+        async function generateAIAnalysis(transcript, apiKeyPassedIn) {
+            if (!transcript || transcript.trim() === "") return { summary: "", tags: "" };
 
-            const url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent";
-            const prompt = `You are an expert executive assistant. Analyze the following testimonial transcript and synthesize it into a clean, elegant "AI Summary Card" for a corporate repository.
+            // const url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent";
+            const url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent";
+            const prompt = `You are an expert executive assistant and corporate taxonomy master. Analyze the following testimonial transcript and generate two distinct metadata assets: an "AI Summary Card" and a list of up to 12 relevant lowercase categorization keywords.
 
-        Format the output strictly into three short, distinct sections with a blank line between them:
+        Format your entire response output layout strictly into these two sections, separated by a triple pipe delimiter line "|||" exactly like this:
 
-        CHALLENGE: [Write 1-2 clear, direct sentences explaining the core business problem, inefficiencies, or frustrations the client faced before using the product.]
+        CHALLENGE: [1-2 sentences explaining the core business problem or software inefficiencies faced before using the product]
 
-        SOLUTION: [Write 1-2 clear, direct sentences detailing the specific tools, features, or plans implemented to solve their problem.]
+        SOLUTION: [1-2 sentences detailing specific features, tools, or service plans implemented to solve the problem]
 
-        RESULTS & IMPACT: [Write 1-2 clear, direct sentences highlighting the key takeaways, time savings, metrics, or emotional relief mentioned.]
+        RESULTS & IMPACT: [1-2 sentences highlighting metrics, time savings, or emotional relief experienced]
+        |||
+        tag1, tag2, tag3, tag4, tag5
 
         CRITICAL RULES:
-        1. Do NOT use markdown bolding or any asterisks (no **).
-        2. Do NOT use nested bullet points or list dashes.
-        3. Keep the language highly professional, clear, and punchy. Avoid introductory or concluding conversational filler text.
+        1. Do NOT use markdown bolding or any asterisks (absolutely no **).
+        2. Do NOT use nested bullet points, dashed list hyphens, or numbering structures.
+        3. The tags segment must be a single line of lowercase, comma-separated keywords.
+        4. The tags must avoid using the product name: "Wave"
+        5. Provide raw string data only. Do not wrap the response inside conversational introduction or conclusion filler greetings.
 
         Transcript:
         ${transcript}`;
@@ -1433,7 +1469,6 @@
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        // 2. Swap out GEMINI_API_KEY for the variable passed into the function
                         'x-goog-api-key': apiKeyPassedIn
                     },
                     body: JSON.stringify({
@@ -1443,23 +1478,46 @@
                     })
                 });
 
-                if (!response.ok) throw new Error(`API error: ${response.statusText}`);
+                if (!response.ok) throw new Error(`API Gateway error: ${response.statusText}`);
 
                 const data = await response.json();
-                return data.candidates[0].content.parts[0].text;
+                const rawOutput = data.candidates[0].content.parts[0].text.trim();
+
+                // Split output at the pipe divider boundary line
+                const pieces = rawOutput.split('|||');
+                const summary = pieces[0] ? pieces[0].trim() : "Summary generation skipped.";
+                const tags = pieces[1] ? pieces[1].trim() : "";
+
+                return { summary, tags };
             } catch (error) {
-                console.error("Gemini AI generation failed:", error);
-                return "AI Summary generation failed. (Edit this item to try again)";
+                console.error("Gemini AI integration processing exception:", error);
+                return { summary: "AI Evaluation failed due to a rate limit.", tags: "" };
             }
         }
 
 
 
-        // Paste this near your other edit modal button listeners
+       // Global memory variables to briefly store our staged data fragments local to this modal view
+        let stagedSummaryText = "";
+        let stagedTagsText = "";
+
+        // Helper function to check if both suggestions have been handled, closing the container automatically
+        function checkStagingCompletion() {
+            const summaryRow = document.getElementById('staged-summary-row');
+            const tagsRow = document.getElementById('staged-tags-row');
+            const stagingArea = document.getElementById('ai-staging-area');
+
+            // If both individual rows are hidden, shut the master container!
+            if (summaryRow.style.display === "none" && tagsRow.style.display === "none") {
+                stagingArea.style.display = "none";
+            }
+        }
+
         document.getElementById('regenerate-ai-btn').addEventListener('click', async () => {
             const transcriptText = document.getElementById('edit-transcript').value;
             const genStatus = document.getElementById('ai-generation-status');
             const genBtn = document.getElementById('regenerate-ai-btn');
+            const stagingArea = document.getElementById('ai-staging-area');
 
             if (!transcriptText || transcriptText.trim() === "") {
                 genStatus.innerText = "Error: Please provide a transcript first.";
@@ -1468,39 +1526,89 @@
             }
 
             genBtn.disabled = true;
-            genStatus.innerHTML = `<div class="loading-spinner"></div> Fetching secure credentials...`;
+            genStatus.innerHTML = `<div class="loading-spinner"></div> Loading secure credentials...`;
             genStatus.style.color = "var(--clr-text-main)";
+            stagingArea.style.display = "none"; // Reset panel view visibility state
 
             try {
-                // 1. Fetch the Gemini Key securely from your locked-down Firestore config
                 const configRef = doc(db, 'config', 'geminiAPI');
                 const configSnap = await getDoc(configRef);
 
                 if (!configSnap.exists()) {
-                    throw new Error("API configuration missing from database.");
+                    throw new Error("Secure API credential mapping key definition row missing inside Firestore.");
                 }
 
                 const SECURE_GEMINI_KEY = configSnap.data().key;
+                genStatus.innerHTML = `<div class="loading-spinner"></div> Using AI to summarize transcript content...`;
 
-                // 2. Update the status to show it's generating
-                genStatus.innerHTML = `<div class="loading-spinner"></div> Generating fresh summary...`;
+                // Run the optimized 2-for-1 backend query
+                const aiPayload = await generateAIAnalysis(transcriptText, SECURE_GEMINI_KEY);
 
-                // 3. Temporarily modify our fetch logic or pass the key to your function.
-                // Let's modify your generateAISummary function call to accept the key:
-                const freshSummary = await generateAISummary(transcriptText, SECURE_GEMINI_KEY);
+                // Store responses inside local memory variables
+                stagedSummaryText = aiPayload.summary;
+                stagedTagsText = aiPayload.tags;
 
-                document.getElementById('edit-ai-summary').value = freshSummary;
-                genStatus.innerText = "Generation complete!";
+                // Populate our hidden staging visual fields
+                document.getElementById('staged-summary-text').innerText = stagedSummaryText;
+                document.getElementById('staged-tags-text').innerText = stagedTagsText;
+
+                // CRITICAL: Reset row visibility states back to visible for a fresh analysis run
+                document.getElementById('staged-summary-row').style.display = "block";
+                document.getElementById('staged-tags-row').style.display = "block";
+
+                // Reveal the staging dashboard container block smoothly
+                genStatus.innerText = "Analysis compiled below!";
                 genStatus.style.color = "var(--clr-success)";
+                stagingArea.style.display = "block";
+
+                // Auto-scroll within the scrollable modal container
+                stagingArea.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
             } catch (error) {
                 console.error(error);
-                genStatus.innerText = "Generation failed: " + error.message;
+                genStatus.innerText = "Analysis compilation failure details: " + error.message;
                 genStatus.style.color = "var(--clr-danger)";
             } finally {
                 genBtn.disabled = false;
                 setTimeout(() => { genStatus.innerHTML = ""; }, 4000);
             }
         });
+
+        // --- NEW STAGING MANAGEMENT BUTTON CLICK ROUTERS ---
+
+        // 1. Summary Actions Row Click Handlers
+        document.getElementById('apply-summary-btn').addEventListener('click', () => {
+            document.getElementById('edit-ai-summary').value = stagedSummaryText;
+            document.getElementById('staged-summary-row').style.display = "none"; // Hide just the summary row
+            checkStagingCompletion();
+        });
+
+        document.getElementById('dismiss-summary-btn').addEventListener('click', () => {
+            document.getElementById('staged-summary-row').style.display = "none"; // Hide just the summary row
+            checkStagingCompletion();
+        });
+
+        // 2. Tags Actions Row Click Handlers
+        document.getElementById('apply-tags-btn').addEventListener('click', () => {
+            const existingTagsInput = document.getElementById('edit-tags').value.trim();
+            if (existingTagsInput) {
+                // Safe programmatic tag appending strategy while preserving structural comma rules
+                document.getElementById('edit-tags').value = `${existingTagsInput}, ${stagedTagsText}`;
+            } else {
+                document.getElementById('edit-tags').value = stagedTagsText;
+            }
+            document.getElementById('staged-tags-row').style.display = "none"; // Hide just the tags row
+            checkStagingCompletion();
+        });
+
+        document.getElementById('dismiss-tags-btn').addEventListener('click', () => {
+            document.getElementById('staged-tags-row').style.display = "none"; // Hide just the tags row
+            checkStagingCompletion();
+        });
+
+
+
+
 
 
 
@@ -1680,36 +1788,49 @@
 
 
 
-        // Handle Add Form Submission
         addForm.addEventListener('submit', async (e) => {
             e.preventDefault();
 
-            // Switch to innerHTML to safely inject the spinner component
-            uploadStatus.innerHTML = `<div class="loading-spinner"></div> Saving...`;
+            uploadStatus.innerHTML = `<div class="loading-spinner"></div> Secure verification in progress...`;
             uploadStatus.style.color = "var(--clr-text-main)";
 
             try {
                 const testimonialsCol = collection(db, 'testimonials');
-                const rawTags = document.getElementById('tags').value;
-                const tagsArray = rawTags.split(',').map(tag => tag.trim()).filter(tag => tag !== "");
+                const rawManualTags = document.getElementById('tags').value.trim();
                 const transcriptText = document.getElementById('transcript').value;
-                let generatedSummary = ""; // Initialize summary
 
-                // Only generate a summary if a transcript is provided
-                if (transcriptText && transcriptText.trim() !== "") {
-                    uploadStatus.innerHTML = `<div class="loading-spinner"></div> Analyzing transcript...`;
+                let generatedSummary = "";
+                let finalTagsArray = [];
 
-                    // Fetch the secure API key from Firestore
+                // Run background AI loop because transcript is verified mandatory
+                uploadStatus.innerHTML = `<div class="loading-spinner"></div> Using AI to generate summary and tags from transcript...`;
+
+                try {
                     const configRef = doc(db, 'config', 'geminiAPI');
                     const configSnap = await getDoc(configRef);
-                    if (!configSnap.exists()) throw new Error("API configuration missing.");
+                    if (!configSnap.exists()) throw new Error("Database configuration API row pointer references missing.");
                     const SECURE_GEMINI_KEY = configSnap.data().key;
 
-                    // Call the generation function with the key
-                    generatedSummary = await generateAISummary(transcriptText, SECURE_GEMINI_KEY);
+                    // Compute unified 2-for-1 parameters
+                    const aiData = await generateAIAnalysis(transcriptText, SECURE_GEMINI_KEY);
+                    generatedSummary = aiData.summary;
+
+                    // Append or join logic loops depending on if manual inputs are present
+                    let compiledTagsString = aiData.tags;
+                    if (rawManualTags) {
+                        compiledTagsString = `${rawManualTags}, ${aiData.tags}`;
+                    }
+                    finalTagsArray = compiledTagsString.split(',').map(tag => tag.trim()).filter(tag => tag !== "");
+
+                } catch (aiError) {
+                    console.error("Background AI generation bypassed due to quota context block:", aiError);
+                    // Bulletproof backup plan: Write a friendly error message if you hit a daily 429 quota lock
+                    generatedSummary = "AI Summary processing pending. (Daily request limit reached during profile generation. Open Edit modal to retry computing.)";
+                    finalTagsArray = rawManualTags.split(',').map(tag => tag.trim()).filter(tag => tag !== "");
                 }
 
-                uploadStatus.innerHTML = `<div class="loading-spinner"></div> Saving to database...`;
+                uploadStatus.innerHTML = `<div class="loading-spinner"></div> Writing document to cloud repository storage arrays...`;
+
                 await addDoc(testimonialsCol, {
                     intervieweeName: document.getElementById('interviewee-name').value,
                     businessName: document.getElementById('business-name').value,
@@ -1718,17 +1839,16 @@
                     frameUrl: document.getElementById('frame-url').value,
                     driveUrl: document.getElementById('drive-url').value,
                     websiteVideoEditUrl: document.getElementById('website-video-edit-url').value,
-                    tags: tagsArray,
+                    tags: finalTagsArray,
                     transcript: transcriptText,
                     aiSummary: generatedSummary,
                     createdAt: serverTimestamp(),
-                    order: -Date.now() // Use a negative timestamp to sort new items to the top
+                    order: -Date.now()
                 });
 
                 uploadStatus.style.color = "var(--clr-success)";
-                uploadStatus.innerText = transcriptText.trim() ? "Success! Testimonial added with AI Summary." : "Success! Testimonial added.";
+                uploadStatus.innerText = "Success! Testimonial added with background AI metadata.";
 
-                // Refresh grid and close modal
                 await loadTestimonials();
                 setTimeout(() => {
                     addModal.classList.remove('active');
@@ -1736,13 +1856,11 @@
                 }, 1500);
 
             } catch (error) {
-                console.error("Error adding document: ", error);
+                console.error("Fatal addition process loop breakdown failure context:", error);
                 uploadStatus.innerText = "Error: " + error.message;
                 uploadStatus.style.color = "var(--clr-danger)";
             }
         });
-
-
 
 
 
@@ -2082,6 +2200,11 @@
 
                                     <blockquote class="pull-quote">"${data.pullQuote}"</blockquote>
 
+                                     <div class="quick-links-box mobile-only">
+                                        ${quickLinksContent}
+                                    </div>
+
+
                                     ${data.aiSummary ? `
                                     <div class="ai-summary-box">
                                         <h4><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M12 2L14.5 9L22 11.5L14.5 14L12 21L9.5 14L2 11.5L9.5 9L12 2Z"></path></svg>AI Summary Card</h4>
@@ -2089,9 +2212,7 @@
                                     </div>
                                     ` : ''}
 
-                                    <div class="quick-links-box mobile-only">
-                                        ${quickLinksContent}
-                                    </div>
+
 
                                     ${data.websiteVideoEditUrl ? `
                                     <div class="website-video-edit-box">
@@ -2254,6 +2375,7 @@
         const editStatus = document.getElementById('edit-status');
 
         async function openEditModal(id) {
+            document.getElementById('ai-staging-area').style.display = "none";
             currentActiveId = id;
             editModal.classList.add('active');
             editStatus.innerText = "Loading data...";
