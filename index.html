@@ -2,12 +2,14 @@
 <!DOCTYPE html>
 <html lang="en">
 
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Wave Testimonial Repository</title>
     <style>
       @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+      @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap');
 
       /* For drag-and-drop animation */
       .sortable-ghost { opacity: 0.4; background: var(--clr-primary-light); }
@@ -138,8 +140,8 @@
       #header-title {
         margin: 0;
         transition: var(--transition);
-        color: var(--clr-text-main);
-        font-style: italic;
+        color: var(--clr-text-main); /* Keep existing color */
+        /* font-style: italic; */
       }
 
       /* Large Header State (Homepage) */
@@ -154,7 +156,7 @@
        padding-bottom: 0.15rem;
       }
       .header-large #header-title {
-        font-size: 1.5rem;
+        font-size: 1.5rem; /* Keep existing font size */
         /* font-size: clamp(1rem, 3vw, 1.4rem); */
 
       }
@@ -162,6 +164,7 @@
       #logo-link {
 
       }
+      #header-title { font-family: 'Montserrat', sans-serif; font-weight: 200; }
 
 
 
@@ -945,6 +948,37 @@
         font-style: italic;
       }
 
+      .ai-summary-box {
+        margin-top: 1.5rem;
+        margin-bottom: 1.5rem;
+        background: var(--clr-surface-3);
+        padding: 1.25rem 1.5rem;
+        border-radius: var(--radius-md);
+      }
+      .ai-summary-box h4 {
+        display: flex; /* Keep this for alignment */
+        align-items: center;
+        gap: 0.5rem;
+        margin: 0 0 0.75rem 0;
+        font-size: .85rem;
+        text-transform: uppercase;
+        letter-spacing: .08em;
+        color: var(--clr-primary);
+        font-weight: 700;
+      }
+      .ai-summary-box h4 svg {
+        flex-shrink: 0; /* Prevent the SVG from shrinking */
+        font-weight: 700;
+      }
+      .ai-summary-box p {
+        margin: 0;
+        font-size: .92rem;
+        line-height: 1.6;
+        color: var(--clr-text-main);
+        font-style: normal;
+        white-space: pre-wrap;
+      }
+
       .mobile-only {
         display: none;
       }
@@ -1009,10 +1043,45 @@
         clip-path: inset(0 0 0 0 round var(--radius-md)); /* Ensures content respects rounded corners */
       }
 
+      .website-video-edit-box {
+        margin-top: 2rem; /* Matches the margin-top of .transcript-box */
+      }
+      .website-video-edit-box h4 {
+        font-size: .85rem;
+        text-transform: uppercase;
+        letter-spacing: .08em;
+        color: var(--clr-text-muted);
+        font-weight: 700;
+        margin-bottom: .75rem;
+      }
       /* ── EDIT SCREEN ── */
       #edit-screen { max-width: 560px; }
       #edit-screen h2 { font-size: 1.8rem; margin-bottom: 1.5rem; }
       #edit-testimonial-form { max-width: 100%; margin-bottom: 2rem; }
+
+      /* Loading Spinner Animation */
+      .loading-spinner {
+        display: inline-block;
+        width: 16px;
+        height: 16px;
+        border: 2px solid var(--clr-border);
+        border-radius: 50%;
+        border-top-color: var(--clr-primary);
+        animation: spin-loader 0.8s linear infinite;
+        vertical-align: middle;
+        margin-right: 8px;
+      }
+
+      @keyframes spin-loader {
+        to { transform: rotate(360deg); }
+      }
+
+      /* Make sure the text aligns nicely next to the circle */
+      .status-text {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
 
       /* ── RESPONSIVE ── */
       @media (max-width: 900px) {
@@ -1095,6 +1164,18 @@
         font-weight: 500;
         font-size: .9rem;
         margin-block: 0;
+      }
+
+      /* AI Summary Word-by-Word Animation */
+      .ai-summary-text span {
+        opacity: 0;
+        transform: translateY(2px);
+        transition: opacity 0.8s cubic-bezier(.4,0,.2,1), transform 0.8s cubic-bezier(.4,0,.2,1);
+        display: inline-block; /* Needed for transform */
+      }
+      .ai-summary-text span.visible {
+        opacity: 1;
+        transform: translateY(0);
       }
     </style>
 </head>
@@ -1265,6 +1346,15 @@
                         <textarea id="edit-transcript" rows="6" placeholder="Transcript"></textarea>
                     </div>
                     <div class="form-group">
+                        <label for="edit-ai-summary">Transcript Summary</label>
+                        <textarea id="edit-ai-summary" rows="5" placeholder="AI Summary text will load here..."></textarea>
+
+                        <button type="button" id="regenerate-ai-btn" class="btn-ghost primary" style="margin-top: 0.5rem; align-self: flex-start; padding: 0.35rem 0.75rem; font-size: 0.8rem;">
+                            Generate with AI
+                        </button>
+                        <span id="ai-generation-status" style="font-size: 0.82rem; margin-top: 0.25rem; display: flex; align-items: center; gap: 0.4rem;"></span>
+                    </div>
+                    <div class="form-group">
                         <label for="edit-tags">Tags (comma separated)</label>
                         <input type="text" id="edit-tags" placeholder="Tags (comma separated)">
                     </div>
@@ -1306,6 +1396,114 @@
         from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
         import { getFirestore, collection, addDoc, serverTimestamp, getDocs, query, orderBy, doc, getDoc, updateDoc, deleteDoc }
         from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+
+
+
+
+
+
+
+
+
+        // 1. Add 'apiKeyPassedIn' as a second argument here
+        async function generateAISummary(transcript, apiKeyPassedIn) {
+            if (!transcript || transcript.trim() === "") return "";
+
+            const url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent";
+            const prompt = `You are an expert executive assistant. Analyze the following testimonial transcript and synthesize it into a clean, elegant "AI Summary Card" for a corporate repository.
+
+        Format the output strictly into three short, distinct sections with a blank line between them:
+
+        CHALLENGE: [Write 1-2 clear, direct sentences explaining the core business problem, inefficiencies, or frustrations the client faced before using the product.]
+
+        SOLUTION: [Write 1-2 clear, direct sentences detailing the specific tools, features, or plans implemented to solve their problem.]
+
+        RESULTS & IMPACT: [Write 1-2 clear, direct sentences highlighting the key takeaways, time savings, metrics, or emotional relief mentioned.]
+
+        CRITICAL RULES:
+        1. Do NOT use markdown bolding or any asterisks (no **).
+        2. Do NOT use nested bullet points or list dashes.
+        3. Keep the language highly professional, clear, and punchy. Avoid introductory or concluding conversational filler text.
+
+        Transcript:
+        ${transcript}`;
+
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        // 2. Swap out GEMINI_API_KEY for the variable passed into the function
+                        'x-goog-api-key': apiKeyPassedIn
+                    },
+                    body: JSON.stringify({
+                        contents: [{
+                            parts: [{ text: prompt }]
+                        }]
+                    })
+                });
+
+                if (!response.ok) throw new Error(`API error: ${response.statusText}`);
+
+                const data = await response.json();
+                return data.candidates[0].content.parts[0].text;
+            } catch (error) {
+                console.error("Gemini AI generation failed:", error);
+                return "AI Summary generation failed. (Edit this item to try again)";
+            }
+        }
+
+
+
+        // Paste this near your other edit modal button listeners
+        document.getElementById('regenerate-ai-btn').addEventListener('click', async () => {
+            const transcriptText = document.getElementById('edit-transcript').value;
+            const genStatus = document.getElementById('ai-generation-status');
+            const genBtn = document.getElementById('regenerate-ai-btn');
+
+            if (!transcriptText || transcriptText.trim() === "") {
+                genStatus.innerText = "Error: Please provide a transcript first.";
+                genStatus.style.color = "var(--clr-danger)";
+                return;
+            }
+
+            genBtn.disabled = true;
+            genStatus.innerHTML = `<div class="loading-spinner"></div> Fetching secure credentials...`;
+            genStatus.style.color = "var(--clr-text-main)";
+
+            try {
+                // 1. Fetch the Gemini Key securely from your locked-down Firestore config
+                const configRef = doc(db, 'config', 'geminiAPI');
+                const configSnap = await getDoc(configRef);
+
+                if (!configSnap.exists()) {
+                    throw new Error("API configuration missing from database.");
+                }
+
+                const SECURE_GEMINI_KEY = configSnap.data().key;
+
+                // 2. Update the status to show it's generating
+                genStatus.innerHTML = `<div class="loading-spinner"></div> Generating fresh summary...`;
+
+                // 3. Temporarily modify our fetch logic or pass the key to your function.
+                // Let's modify your generateAISummary function call to accept the key:
+                const freshSummary = await generateAISummary(transcriptText, SECURE_GEMINI_KEY);
+
+                document.getElementById('edit-ai-summary').value = freshSummary;
+                genStatus.innerText = "Generation complete!";
+                genStatus.style.color = "var(--clr-success)";
+            } catch (error) {
+                console.error(error);
+                genStatus.innerText = "Generation failed: " + error.message;
+                genStatus.style.color = "var(--clr-danger)";
+            } finally {
+                genBtn.disabled = false;
+                setTimeout(() => { genStatus.innerHTML = ""; }, 4000);
+            }
+        });
+
+
+
 
         // Firebase Config
         const firebaseConfig = {
@@ -1475,17 +1673,43 @@
             }
         });
 
+
+
+
+
+
+
+
         // Handle Add Form Submission
         addForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            uploadStatus.innerText = "Saving...";
-            uploadStatus.style.color = "#1a1d2e";
+
+            // Switch to innerHTML to safely inject the spinner component
+            uploadStatus.innerHTML = `<div class="loading-spinner"></div> Saving...`;
+            uploadStatus.style.color = "var(--clr-text-main)";
 
             try {
                 const testimonialsCol = collection(db, 'testimonials');
                 const rawTags = document.getElementById('tags').value;
                 const tagsArray = rawTags.split(',').map(tag => tag.trim()).filter(tag => tag !== "");
+                const transcriptText = document.getElementById('transcript').value;
+                let generatedSummary = ""; // Initialize summary
 
+                // Only generate a summary if a transcript is provided
+                if (transcriptText && transcriptText.trim() !== "") {
+                    uploadStatus.innerHTML = `<div class="loading-spinner"></div> Analyzing transcript...`;
+
+                    // Fetch the secure API key from Firestore
+                    const configRef = doc(db, 'config', 'geminiAPI');
+                    const configSnap = await getDoc(configRef);
+                    if (!configSnap.exists()) throw new Error("API configuration missing.");
+                    const SECURE_GEMINI_KEY = configSnap.data().key;
+
+                    // Call the generation function with the key
+                    generatedSummary = await generateAISummary(transcriptText, SECURE_GEMINI_KEY);
+                }
+
+                uploadStatus.innerHTML = `<div class="loading-spinner"></div> Saving to database...`;
                 await addDoc(testimonialsCol, {
                     intervieweeName: document.getElementById('interviewee-name').value,
                     businessName: document.getElementById('business-name').value,
@@ -1493,15 +1717,16 @@
                     imageUrl: document.getElementById('image-url').value,
                     frameUrl: document.getElementById('frame-url').value,
                     driveUrl: document.getElementById('drive-url').value,
-                    websiteVideoEditUrl: document.getElementById('website-video-edit-url').value, // New Field
+                    websiteVideoEditUrl: document.getElementById('website-video-edit-url').value,
                     tags: tagsArray,
-                    transcript: document.getElementById('transcript').value,
+                    transcript: transcriptText,
+                    aiSummary: generatedSummary,
                     createdAt: serverTimestamp(),
-                    order: Date.now() // Set initial order using a timestamp
+                    order: -Date.now() // Use a negative timestamp to sort new items to the top
                 });
 
                 uploadStatus.style.color = "var(--clr-success)";
-                uploadStatus.innerText = "Success! Testimonial added.";
+                uploadStatus.innerText = transcriptText.trim() ? "Success! Testimonial added with AI Summary." : "Success! Testimonial added.";
 
                 // Refresh grid and close modal
                 await loadTestimonials();
@@ -1516,6 +1741,15 @@
                 uploadStatus.style.color = "var(--clr-danger)";
             }
         });
+
+
+
+
+
+
+
+
+
 
         // Grid & Search
         const gridContainer = document.getElementById('testimonial-grid');
@@ -1846,7 +2080,14 @@
                                         ${data.frameUrl ? renderVideoEmbed(data.frameUrl) : 'No video link provided'}
                                     </div>
 
-                                    <blockquote class="pull-quote">${data.pullQuote}</blockquote>
+                                    <blockquote class="pull-quote">"${data.pullQuote}"</blockquote>
+
+                                    ${data.aiSummary ? `
+                                    <div class="ai-summary-box">
+                                        <h4><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M12 2L14.5 9L22 11.5L14.5 14L12 21L9.5 14L2 11.5L9.5 9L12 2Z"></path></svg>AI Summary Card</h4>
+                                        <p class="ai-summary-text">${data.aiSummary}</p>
+                                    </div>
+                                    ` : ''}
 
                                     <div class="quick-links-box mobile-only">
                                         ${quickLinksContent}
@@ -1854,7 +2095,7 @@
 
                                     ${data.websiteVideoEditUrl ? `
                                     <div class="website-video-edit-box">
-                                        <h3>Website Video-Edit</h3>
+                                        <h4>Website Video-Edit</h4>
                                         <div class="video-edit-player">
                                             <video src="${data.websiteVideoEditUrl}" controls style="width:100%; height:auto; border-radius:var(--radius-md);"></video>
                                         </div>
@@ -1870,6 +2111,41 @@
                                 </div>
                             </div>
                         `;
+
+                        // --- ANIMATE AI SUMMARY (WORD-BY-WORD REVEAL) ---
+                        const summaryElement = detailContent.querySelector('.ai-summary-text');
+                        if (summaryElement && 'IntersectionObserver' in window) {
+                            const originalText = summaryElement.innerText;
+                            // Split by space, but keep the space by capturing it. This preserves line breaks.
+                            const words = originalText.split(/(\s+)/);
+
+                            summaryElement.innerHTML = words.map(word => {
+                                // Don't wrap whitespace-only strings in spans
+                                if (word.trim() === '') {
+                                    return word;
+                                }
+                                return `<span>${word}</span>`;
+                            }).join('');
+
+                            const wordSpans = summaryElement.querySelectorAll('span');
+
+                            const observer = new IntersectionObserver((entries, observer) => {
+                                entries.forEach(entry => {
+                                    if (entry.isIntersecting) {
+                                        wordSpans.forEach((span, index) => {
+                                            setTimeout(() => {
+                                                span.classList.add('visible');
+                                            }, index * 30); // Staggered delay for each word
+                                        });
+                                        observer.unobserve(entry.target); // Animate only once
+                                    }
+                                });
+                            }, {
+                                threshold: 0.5 // Trigger when 50% of the element is visible
+                            });
+
+                            observer.observe(summaryElement);
+                        }
 
                         const tagElements = detailContent.querySelectorAll('.clickable-tag');
                         tagElements.forEach(tagEl => {
@@ -1992,6 +2268,7 @@
                     document.getElementById('edit-interviewee-name').value = data.intervieweeName || '';
                     document.getElementById('edit-business-name').value = data.businessName || '';
                     document.getElementById('edit-pull-quote').value = data.pullQuote || '';
+                    document.getElementById('edit-ai-summary').value = data.aiSummary || '';
                     document.getElementById('edit-image-url').value = data.imageUrl || '';
                     document.getElementById('edit-frame-url').value = data.frameUrl || '';
                     document.getElementById('edit-drive-url').value = data.driveUrl || '';
@@ -2019,47 +2296,66 @@
             }
         });
 
-        editForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            if (!currentActiveId) return;
 
-            editStatus.innerText = "Updating database...";
-            editStatus.style.color = "var(--clr-success)";
 
-            try {
-                const rawTags = document.getElementById('edit-tags').value;
-                const tagsArray = rawTags.split(',').map(tag => tag.trim()).filter(tag => tag !== "");
 
-                const docRef = doc(db, 'testimonials', currentActiveId);
-                await updateDoc(docRef, {
-                    intervieweeName: document.getElementById('edit-interviewee-name').value,
-                    businessName: document.getElementById('edit-business-name').value,
-                    pullQuote: document.getElementById('edit-pull-quote').value,
-                    imageUrl: document.getElementById('edit-image-url').value,
-                    frameUrl: document.getElementById('edit-frame-url').value,
-                    driveUrl: document.getElementById('edit-drive-url').value,
-                    websiteVideoEditUrl: document.getElementById('edit-website-video-edit-url').value, // New Field
-                    transcript: document.getElementById('edit-transcript').value,
-                    tags: tagsArray,
-                    // Note: 'order' is not edited here, it's only managed by drag-and-drop
-                });
 
-                editStatus.innerText = "Success! Updating testimonial details...";
 
-                await loadTestimonials();
-                await updateView();
 
-                setTimeout(() => {
-                    editModal.classList.remove('active');
-                    editForm.reset();
-                }, 1000);
 
-            } catch (error) {
-                console.error("Error updating document:", error);
-                editStatus.innerText = "Error: " + error.message;
-                editStatus.style.color = "var(--clr-danger)";
-            }
-        });
+       editForm.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          if (!currentActiveId) return;
+
+          // Instant database update status feedback loop
+          editStatus.innerText = "Updating database...";
+          editStatus.style.color = "var(--clr-success)";
+
+          try {
+              const rawTags = document.getElementById('edit-tags').value;
+              const tagsArray = rawTags.split(',').map(tag => tag.trim()).filter(tag => tag !== "");
+
+              const docRef = doc(db, 'testimonials', currentActiveId);
+              await updateDoc(docRef, {
+                  intervieweeName: document.getElementById('edit-interviewee-name').value,
+                  businessName: document.getElementById('edit-business-name').value,
+                  pullQuote: document.getElementById('edit-pull-quote').value,
+                  imageUrl: document.getElementById('edit-image-url').value,
+                  frameUrl: document.getElementById('edit-frame-url').value,
+                  driveUrl: document.getElementById('edit-drive-url').value,
+                  websiteVideoEditUrl: document.getElementById('edit-website-video-edit-url').value,
+                  transcript: document.getElementById('edit-transcript').value,
+
+                  // This safely accepts an empty string, meaning it wipes it cleanly if deleted!
+                  aiSummary: document.getElementById('edit-ai-summary').value.trim(),
+                  tags: tagsArray,
+              });
+
+              editStatus.innerText = "Success! Testimonial updated.";
+
+              await loadTestimonials();
+              await updateView();
+
+              setTimeout(() => {
+                  editModal.classList.remove('active');
+                  editForm.reset();
+              }, 1000);
+
+          } catch (error) {
+              console.error("Error updating document:", error);
+              editStatus.innerText = "Error: " + error.message;
+              editStatus.style.color = "var(--clr-danger)";
+          }
+      });
+
+
+
+
+
+
+
+
+
 
         // Detail Edit and Delete Logic
         detailEditBtn.addEventListener('click', () => {
