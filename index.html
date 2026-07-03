@@ -74,6 +74,8 @@
         --clr-border:        #2c2e40;
         --clr-danger-bg:     #2e1a1c;
 
+        background-image: linear-gradient(180deg, rgba(79, 94, 232, 0.118), transparent 400px);
+
         --shadow-xs: 0 1px 2px rgba(0,0,0,.2);
         --shadow-sm: 0 2px 8px rgba(0,0,0,.25);
         --shadow-md: 0 8px 24px rgba(0,0,0,.3);
@@ -90,7 +92,9 @@
 
       body {
         font-family: var(--font-sans);
-        background: var(--clr-bg);
+        background-color: var(--clr-bg);
+        background-image: linear-gradient(180deg, rgba(79, 95, 232, 0.08), transparent 400px);
+        background-repeat: no-repeat;
         color: var(--clr-text-main);
         margin: 0;
         padding: 0 clamp(1.25rem, 6vw, 5rem) 2.5rem;
@@ -201,7 +205,7 @@
         transition: var(--transition);
       }
       #user-info:hover {
-        background-color: var(--clr-surface-3);
+        background-color: var(--clr-surface-2);
       }
       #user-menu-dropdown {
         position: absolute;
@@ -1539,7 +1543,7 @@
                 }
 
                 const SECURE_GEMINI_KEY = configSnap.data().key;
-                genStatus.innerHTML = `<div class="loading-spinner"></div> Using AI to summarize transcript content...`;
+                genStatus.innerHTML = `<div class="loading-spinner"></div> Using AI to summarize transcript ...`;
 
                 // Run the optimized 2-for-1 backend query
                 const aiPayload = await generateAIAnalysis(transcriptText, SECURE_GEMINI_KEY);
