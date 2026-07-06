@@ -26,7 +26,8 @@
         --clr-surface:       #ffffff;
         --clr-surface-2:     #f8f9fd;
         --clr-surface-3:     #e8e9f0;
-        --clr-text-main:     #16182a;
+        --clr-surface-4:     #d8d9e06a;
+        --clr-text-main:     #4d4d51;
         --clr-text-muted:    #6b7080;
         --clr-border:        #e7e9f2;
         --clr-danger:        #e5484d;
@@ -36,7 +37,7 @@
         /* Shape */
         --radius-xs:  8px;
         --radius-sm:  12px;
-        --radius-md:  16px;
+        --radius-md:  12px;
         --radius-lg:  20px;
         --radius-xl:  28px;
         --radius-pill:9999px;
@@ -49,6 +50,9 @@
         --space-5: 1.5rem;
         --space-6: 2rem;
         --space-7: 3rem;
+
+        /* Box Padding */
+        --padding-box: clamp(0.75rem, 2.5vw, 2rem) clamp(1rem, 5vw, 3rem);
 
         /* Depth */
         --shadow-xs: 0 1px 2px rgba(22,24,42,.05);
@@ -68,8 +72,9 @@
         --clr-bg:            #0f1019;
         --clr-surface:       #181a28;
         --clr-surface-2:     #21232f;
-        --clr-surface-3:     #1d1f2b;
-        --clr-text-main:     #f1f2fa;
+        --clr-surface-3:     #22242b;
+        --clr-surface-4:     #171f5f47;
+        --clr-text-main:     #b6bbd4;
         --clr-text-muted:    #8b8fa3;
         --clr-border:        #2c2e40;
         --clr-danger-bg:     #2e1a1c;
@@ -955,8 +960,8 @@
       .ai-summary-box {
         margin-top: 1.5rem;
         margin-bottom: 1.5rem;
-        background: var(--clr-surface-3);
-        padding: 1.25rem 1.5rem;
+        background: var(--clr-surface-4);
+        padding: var(--padding-box);
         border-radius: var(--radius-md);
       }
       .ai-summary-box h4 {
@@ -980,6 +985,32 @@
         line-height: 1.6;
         color: var(--clr-text-main);
         font-style: normal;
+        white-space: pre-wrap;
+      }
+
+      .notes-box {
+        margin-top: 2rem;
+      }
+      .notes-box h4 {
+        font-size: .85rem;
+        text-transform: uppercase;
+        letter-spacing: .08em;
+        color: var(--clr-text-muted);
+        font-weight: 700;
+        margin-bottom: .75rem;
+      }
+      .notes-body {
+        background: var(--clr-surface-2);
+        border: 1px solid var(--clr-border);
+        border-radius: var(--radius-md);
+        padding: var(--padding-box);
+        font-size: .92rem;
+        line-height: 1.6;
+        color: var(--clr-text-main);
+        max-height: 360px; /* Added for fixed height */
+        overflow-y: auto; /* Added for scrollability */
+        box-sizing: border-box; /* Ensures padding is inside, fixing scrollbar position */
+        clip-path: inset(0 0 0 0 round var(--radius-md)); /* Ensures content respects rounded corners */
         white-space: pre-wrap;
       }
 
@@ -1035,7 +1066,7 @@
         background: var(--clr-surface-2);
         border: 1px solid var(--clr-border);
         border-radius: var(--radius-md);
-        padding: 1.25rem 1.5rem;
+        padding: var(--padding-box);
         max-height: 360px;
         overflow-y: auto;
         white-space: pre-wrap;
@@ -1181,6 +1212,50 @@
         opacity: 1;
         transform: translateY(0);
       }
+
+      .ai-section {
+        border: 1px solid var(--clr-primary);
+        border-radius: var(--radius-lg);
+        padding: 1rem;
+        margin-top: 1.1rem;
+        background-color: var(--clr-surface-2);
+      }
+
+      .ai-section .form-group input {
+         background-color: var(--clr-surface); !important
+      }
+
+      .ai-section .form-group textarea {
+         background-color: var(--clr-surface); !important
+      }
+
+      /* ── CUSTOM SCROLLBARS ── */
+      /* For Webkit browsers (Chrome, Safari, Edge, Opera) */
+      ::-webkit-scrollbar {
+        width: 10px;
+        height: 10px; /* For horizontal scrollbars */
+      }
+
+      ::-webkit-scrollbar-track {
+        background: var(--clr-surface-3);
+        border-radius: var(--radius-pill);
+      }
+
+      ::-webkit-scrollbar-thumb {
+        background-color: var(--clr-text-muted);
+        border-radius: var(--radius-pill);
+        border: 5px solid var(--clr-surface-3); /* Creates a margin around the thumb */
+      }
+
+      ::-webkit-scrollbar-thumb:hover {
+        background-color: var(--clr-primary);
+      }
+
+      /* For Firefox */
+      * {
+        scrollbar-width: thin; /* "auto" or "thin" */
+        scrollbar-color: var(--clr-text-muted) var(--clr-surface-3); /* thumb track */
+      }
     </style>
 </head>
 <body>
@@ -1188,7 +1263,7 @@
     <header id="main-header" class="header-large hidden">
         <div class="header-left">
             <a href="#" id="logo-link">
-                <img src="https://cdn.prod.website-files.com/62446230dcb514b828a6e237/677ed61188695f2316217fc5_Wave-2_0-logo-fullcolour-rgb.svg" alt="Wave Logo" id="header-logo">
+                <img src="wave-logo.svg" alt="Wave Logo" id="header-logo">
                 <h1 id="header-title">Testimonial Repository</h1>
             </a>
         </div>
@@ -1210,7 +1285,7 @@
     </header>
 
     <div id="login-screen">
-        <img src="https://cdn.prod.website-files.com/62446230dcb514b828a6e237/677ed61188695f2316217fc5_Wave-2_0-logo-fullcolour-rgb.svg" alt="Wave Logo" class="login-logo">
+        <img src="wave-logo.svg" alt="Wave Logo" class="login-logo">
         <h2>Testimonial Repository</h2>
         <button id="login-btn">Sign in with Google</button>
         <p>Employee emails required</p>
@@ -1274,6 +1349,10 @@
                     <div class="form-group">
                         <label for="website-video-edit-url">Website Video-Edit</label>
                         <input type="url" id="website-video-edit-url" placeholder="Website Video-Edit URL (optional)">
+                    </div>
+                    <div class="form-group">
+                        <label for="additional-notes">Additional Notes</label>
+                        <textarea id="additional-notes" placeholder="Internal notes, context, or other details (optional)" rows="4"></textarea>
                     </div>
                     <div class="form-group">
                         <label for="transcript">Full Transcript</label>
@@ -1346,53 +1425,60 @@
                         <input type="url" id="edit-website-video-edit-url" placeholder="Website Video-Edit URL (optional)">
                     </div>
                     <div class="form-group">
+                        <label for="edit-additional-notes">Additional Notes</label>
+                        <textarea id="edit-additional-notes" placeholder="Internal notes, context, or other details (optional)" rows="4"></textarea>
+                    </div>
+                    <div class="form-group">
                         <label for="edit-transcript">Full Transcript</label>
                         <textarea id="edit-transcript" rows="6" placeholder="Transcript" required></textarea>
                     </div>
 
-                    <div class="form-group">
-                        <label for="edit-ai-summary">Transcript Summary</label>
-                        <textarea id="edit-ai-summary" rows="5" placeholder="AI Summary text will load here..."></textarea>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="edit-tags">Tags (comma separated)</label>
-                        <input type="text" id="edit-tags" placeholder="Tags (comma separated)">
-                    </div>
-
-                    <div class="form-group" style="margin-top: 0.5rem; margin-bottom: 1rem;">
-                        <button type="button" id="regenerate-ai-btn" class="btn-ghost primary" style="align-self: flex-start; padding: 0.35rem 0.75rem; font-size: 0.8rem;">
-                            Analyze Content with AI
-                        </button>
-                        <span id="ai-generation-status" style="font-size: 0.82rem; margin-top: 0.25rem; display: flex; align-items: center; gap: 0.4rem;"></span>
-                    </div>
-
-                    <div id="ai-staging-area" style="display: none; background: var(--clr-surface-2); border: 1px dashed var(--clr-primary); border-radius: var(--radius-md); padding: 1.25rem; margin-bottom: 1.25rem;">
-                        <h4 style="margin: 0 0 1rem 0; font-size: 0.8rem; color: var(--clr-primary); text-transform: uppercase; letter-spacing: 0.05em; display: flex; align-items: center; gap: 0.3rem;">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L14.5 9L22 11.5L14.5 14L12 21L9.5 14L2 11.5L9.5 9L12 2Z"></path></svg>
-                            AI Analysis Suggestions (Draft)
-                        </h4>
-
-                        <div id="staged-summary-row" style="margin-bottom: 1.25rem; border-bottom: 1px dashed var(--clr-border); padding-bottom: 1rem;">
-                            <p style="font-size: 0.82rem; font-weight: 700; color: var(--clr-text-main); margin: 0 0 0.35rem 0;">Suggested Summary:</p>
-                            <p id="staged-summary-text" style="font-size: 0.85rem; color: var(--clr-text-muted); margin: 0 0 0.5rem 0; background: var(--clr-surface); padding: 0.75rem; border-radius: var(--radius-xs); border: 1px solid var(--clr-border); white-space: pre-wrap; line-height: 1.5; font-style: normal;"></p>
-
-                            <div style="display: flex; gap: 0.5rem;">
-                                <button type="button" id="apply-summary-btn" class="btn-ghost primary" style="padding: 0.3rem 0.75rem; font-size: 0.75rem; display: inline-flex; align-items: center; gap: 0.2rem;">✅ Apply Summary</button>
-                                <button type="button" id="dismiss-summary-btn" class="btn-ghost danger" style="padding: 0.3rem 0.75rem; font-size: 0.75rem; display: inline-flex; align-items: center; gap: 0.2rem;">❌ Dismiss</button>
-                            </div>
+                    <div class="ai-section">
+                        <div class="form-group">
+                            <label for="edit-ai-summary">Transcript Summary</label>
+                            <textarea id="edit-ai-summary" rows="5" placeholder="AI Summary text will load here..."></textarea>
                         </div>
 
-                        <div id="staged-tags-row" style="margin-bottom: 0.25rem;">
-                            <p style="font-size: 0.82rem; font-weight: 700; color: var(--clr-text-main); margin: 0 0 0.35rem 0;">Suggested Tags:</p>
-                            <p id="staged-tags-text" style="font-size: 0.85rem; color: var(--clr-text-muted); margin: 0 0 0.5rem 0; background: var(--clr-surface); padding: 0.5rem 0.75rem; border-radius: var(--radius-xs); border: 1px solid var(--clr-border); font-family: monospace;"></p>
+                        <div class="form-group">
+                            <label for="edit-tags">Tags (comma separated)</label>
+                            <input type="text" id="edit-tags" placeholder="Tags (comma separated)">
+                        </div>
 
-                            <div style="display: flex; gap: 0.5rem;">
-                                <button type="button" id="apply-tags-btn" class="btn-ghost primary" style="padding: 0.3rem 0.75rem; font-size: 0.75rem; display: inline-flex; align-items: center; gap: 0.2rem;">✅ Apply Tags</button>
-                                <button type="button" id="dismiss-tags-btn" class="btn-ghost danger" style="padding: 0.3rem 0.75rem; font-size: 0.75rem; display: inline-flex; align-items: center; gap: 0.2rem;">❌ Dismiss</button>
+                        <div class="form-group" style="margin-top: 0.5rem; margin-bottom: 1rem;">
+                            <button type="button" id="regenerate-ai-btn" class="btn-ghost primary" style="align-self: flex-start; padding: 0.35rem 0.75rem; font-size: 0.8rem;">
+                                Analyze Content with AI
+                            </button>
+                            <span id="ai-generation-status" style="font-size: 0.82rem; margin-top: 0.25rem; display: flex; align-items: center; gap: 0.4rem;"></span>
+                        </div>
+
+                        <div id="ai-staging-area" style="display: none; background: var(--clr-surface-2); border: 1px dashed var(--clr-primary); border-radius: var(--radius-md); padding: 1.25rem; margin-bottom: 1.25rem;">
+                            <h4 style="margin: 0 0 1rem 0; font-size: 0.8rem; color: var(--clr-primary); text-transform: uppercase; letter-spacing: 0.05em; display: flex; align-items: center; gap: 0.3rem;">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L14.5 9L22 11.5L14.5 14L12 21L9.5 14L2 11.5L9.5 9L12 2Z"></path></svg>
+                                AI Analysis Suggestions (Draft)
+                            </h4>
+
+                            <div id="staged-summary-row" style="margin-bottom: 1.25rem; border-bottom: 1px dashed var(--clr-border); padding-bottom: 1rem;">
+                                <p style="font-size: 0.82rem; font-weight: 700; color: var(--clr-text-main); margin: 0 0 0.35rem 0;">Suggested Summary:</p>
+                                <p id="staged-summary-text" style="font-size: 0.85rem; color: var(--clr-text-muted); margin: 0 0 0.5rem 0; background: var(--clr-surface); padding: 0.75rem; border-radius: var(--radius-xs); border: 1px solid var(--clr-border); white-space: pre-wrap; line-height: 1.5; font-style: normal;"></p>
+
+                                <div style="display: flex; gap: 0.5rem;">
+                                    <button type="button" id="apply-summary-btn" class="btn-ghost primary" style="padding: 0.3rem 0.75rem; font-size: 0.75rem; display: inline-flex; align-items: center; gap: 0.2rem;">✅ Apply Summary</button>
+                                    <button type="button" id="dismiss-summary-btn" class="btn-ghost danger" style="padding: 0.3rem 0.75rem; font-size: 0.75rem; display: inline-flex; align-items: center; gap: 0.2rem;">❌ Dismiss</button>
+                                </div>
+                            </div>
+
+                            <div id="staged-tags-row" style="margin-bottom: 0.25rem;">
+                                <p style="font-size: 0.82rem; font-weight: 700; color: var(--clr-text-main); margin: 0 0 0.35rem 0;">Suggested Tags:</p>
+                                <p id="staged-tags-text" style="font-size: 0.85rem; color: var(--clr-text-muted); margin: 0 0 0.5rem 0; background: var(--clr-surface); padding: 0.5rem 0.75rem; border-radius: var(--radius-xs); border: 1px solid var(--clr-border); font-family: monospace;"></p>
+
+                                <div style="display: flex; gap: 0.5rem;">
+                                    <button type="button" id="apply-tags-btn" class="btn-ghost primary" style="padding: 0.3rem 0.75rem; font-size: 0.75rem; display: inline-flex; align-items: center; gap: 0.2rem;">✅ Apply Tags</button>
+                                    <button type="button" id="dismiss-tags-btn" class="btn-ghost danger" style="padding: 0.3rem 0.75rem; font-size: 0.75rem; display: inline-flex; align-items: center; gap: 0.2rem;">❌ Dismiss</button>
+                                </div>
                             </div>
                         </div>
                     </div>
+
                 </form>
             </div>
             <div class="modal-footer">
@@ -1843,6 +1929,7 @@
                     frameUrl: document.getElementById('frame-url').value,
                     driveUrl: document.getElementById('drive-url').value,
                     websiteVideoEditUrl: document.getElementById('website-video-edit-url').value,
+                    additionalNotes: document.getElementById('additional-notes').value,
                     tags: finalTagsArray,
                     transcript: transcriptText,
                     aiSummary: generatedSummary,
@@ -2170,9 +2257,10 @@
                             <h4>Quick Links</h4>
                             ${data.frameUrl ? `<a href="${data.frameUrl}" target="_blank"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>Google Video</a>` : ''}
                             ${data.driveUrl ? `<a href="${data.driveUrl}" target="_blank"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>Drive Folder</a>` : ''}
+                            ${data.websiteVideoEditUrl ? `<a href="#" id="download-video-btn"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="23 7 16 12 23 17 23 7"></polygon><rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect></svg>Website Video</a>` : ''}
                             ${data.imageUrl ? `<a href="#" id="download-headshot-btn"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>Headshot</a>` : ''}
                             ${data.transcript ? `<a href="#" id="download-transcript-btn"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>Transcript</a>` : ''}
-                            ${!data.frameUrl && !data.driveUrl && !data.transcript && !data.imageUrl ? '<span style="color:var(--clr-text-muted);font-size:.9rem;">No links provided</span>' : ''}
+                            ${!data.frameUrl && !data.driveUrl && !data.websiteVideoEditUrl && !data.transcript && !data.imageUrl ? '<span style="color:var(--clr-text-muted);font-size:.9rem;">No links provided</span>' : ''}
                         `;
 
                         const displayImg = data.imageUrl || 'https://placehold.co/120x120/eef0ff/7b89ff?text=' + data.intervieweeName.charAt(0);
@@ -2224,6 +2312,13 @@
                                         <div class="video-edit-player">
                                             <video src="${data.websiteVideoEditUrl}" controls style="width:100%; height:auto; border-radius:var(--radius-md);"></video>
                                         </div>
+                                    </div>
+                                    ` : ''}
+
+                                    ${data.additionalNotes ? `
+                                    <div class="notes-box">
+                                        <h4>Additional Notes</h4>
+                                        <div class="notes-body">${data.additionalNotes}</div>
                                     </div>
                                     ` : ''}
 
@@ -2308,6 +2403,29 @@
                                     document.body.removeChild(tempLink);
                                     URL.revokeObjectURL(url);
                                 } catch (error) { console.error('Error downloading image:', error); }
+                            });
+                        }
+                        // Add event listener for the new video download button
+                        const downloadVideoBtn = detailContent.querySelector('#download-video-btn');
+                        if (downloadVideoBtn) {
+                            downloadVideoBtn.addEventListener('click', async (e) => {
+                                e.preventDefault();
+                                try {
+                                    const response = await fetch(data.websiteVideoEditUrl);
+                                    const blob = await response.blob();
+                                    const url = URL.createObjectURL(blob);
+                                    const tempLink = document.createElement('a');
+                                    tempLink.href = url;
+                                    const safeFilename = data.intervieweeName.replace(/[^a-z0-9]/gi, '_').toLowerCase();
+                                    const extension = data.websiteVideoEditUrl.split('.').pop().split('?')[0] || 'mp4';
+                                    tempLink.download = `website_video_${safeFilename}.${extension}`;
+                                    document.body.appendChild(tempLink);
+                                    tempLink.click();
+                                    document.body.removeChild(tempLink);
+                                    URL.revokeObjectURL(url);
+                                } catch (error) {
+                                    console.error('Error downloading video:', error);
+                                }
                             });
                         }
                         // Add event listener for the new download button
@@ -2399,6 +2517,7 @@
                     document.getElementById('edit-frame-url').value = data.frameUrl || '';
                     document.getElementById('edit-drive-url').value = data.driveUrl || '';
                     document.getElementById('edit-website-video-edit-url').value = data.websiteVideoEditUrl || ''; // Populate new field
+                    document.getElementById('edit-additional-notes').value = data.additionalNotes || '';
                     document.getElementById('edit-transcript').value = data.transcript || '';
                     document.getElementById('edit-tags').value = data.tags ? data.tags.join(', ') : '';
                     editStatus.innerText = "";
@@ -2450,6 +2569,7 @@
                   frameUrl: document.getElementById('edit-frame-url').value,
                   driveUrl: document.getElementById('edit-drive-url').value,
                   websiteVideoEditUrl: document.getElementById('edit-website-video-edit-url').value,
+                  additionalNotes: document.getElementById('edit-additional-notes').value,
                   transcript: document.getElementById('edit-transcript').value,
 
                   // This safely accepts an empty string, meaning it wipes it cleanly if deleted!
