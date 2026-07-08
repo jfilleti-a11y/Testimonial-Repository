@@ -1527,63 +1527,80 @@
 
 
         // Replace the old generateAISummary block with this optimized script
-        async function generateAIAnalysis(transcript, apiKeyPassedIn) {
-            if (!transcript || transcript.trim() === "") return { summary: "", tags: "" };
+        // Updated client-side analyzer with automatic retry handling for 503/429 errors
+async function generateAIAnalysis(transcript, apiKeyPassedIn) {
+    if (!transcript || transcript.trim() === "") return { summary: "", tags: "" };
 
-            // const url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent";
-            const url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent";
-            const prompt = `You are an expert executive assistant and corporate taxonomy master. Analyze the following testimonial transcript and generate two distinct metadata assets: an "AI Summary Card" and a list of up to 12 relevant lowercase categorization keywords.
+    const url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent";
+    const prompt = `You are an expert executive assistant and corporate taxonomy master. Analyze the following testimonial transcript and generate two distinct metadata assets: an "AI Summary Card" and a list of up to 12 relevant lowercase categorization keywords.
 
-        Format your entire response output layout strictly into these two sections, separated by a triple pipe delimiter line "|||" exactly like this:
+Format your entire response output layout strictly into these two sections, separated by a triple pipe delimiter line "|||" exactly like this:
 
-        CHALLENGE: [1-2 sentences explaining the core business problem or software inefficiencies faced before using the product]
+CHALLENGE: [1-2 sentences explaining the core business problem or software inefficiencies faced before using the product]
 
-        SOLUTION: [1-2 sentences detailing specific features, tools, or service plans implemented to solve the problem]
+SOLUTION: [1-2 sentences detailing specific features, tools, or service plans implemented to solve the problem]
 
-        RESULTS & IMPACT: [1-2 sentences highlighting metrics, time savings, or emotional relief experienced]
-        |||
-        tag1, tag2, tag3, tag4, tag5
+RESULTS & IMPACT: [1-2 sentences highlighting metrics, time savings, or emotional relief experienced]
+|||
+tag1, tag2, tag3, tag4, tag5
 
-        CRITICAL RULES:
-        1. Do NOT use markdown bolding or any asterisks (absolutely no **).
-        2. Do NOT use nested bullet points, dashed list hyphens, or numbering structures.
-        3. The tags segment must be a single line of lowercase, comma-separated keywords.
-        4. The tags must avoid using the product name: "Wave"
-        5. Provide raw string data only. Do not wrap the response inside conversational introduction or conclusion filler greetings.
+CRITICAL RULES:
+1. Do NOT use markdown bolding or any asterisks (absolutely no **).
+2. Do NOT use nested bullet points, dashed list hyphens, or numbering structures.
+3. The tags segment must be a single line of lowercase, comma-separated keywords.
+4. The tags must avoid using the product name: "Wave"
+5. Provide raw string data only. Do not wrap the response inside conversational introduction or conclusion filler greetings.
 
-        Transcript:
-        ${transcript}`;
+Transcript:
+${transcript}`;
 
-            try {
-                const response = await fetch(url, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'x-goog-api-key': apiKeyPassedIn
-                    },
-                    body: JSON.stringify({
-                        contents: [{
-                            parts: [{ text: prompt }]
-                        }]
-                    })
-                });
+    const maxRetries = 3;
+    let delay = 1000; // Start with a 1-second delay
 
-                if (!response.ok) throw new Error(`API Gateway error: ${response.statusText}`);
+    for (let attempt = 0; attempt <= maxRetries; attempt++) {
+        try {
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'x-goog-api-key': apiKeyPassedIn
+                },
+                body: JSON.stringify({
+                    contents: [{
+                        parts: [{ text: prompt }]
+                    }]
+                })
+            });
 
-                const data = await response.json();
-                const rawOutput = data.candidates[0].content.parts[0].text.trim();
-
-                // Split output at the pipe divider boundary line
-                const pieces = rawOutput.split('|||');
-                const summary = pieces[0] ? pieces[0].trim() : "Summary generation skipped.";
-                const tags = pieces[1] ? pieces[1].trim() : "";
-
-                return { summary, tags };
-            } catch (error) {
-                console.error("Gemini AI integration processing exception:", error);
-                return { summary: "AI Evaluation failed due to a rate limit.", tags: "" };
+            // If Gemini returns a 503 (Busy) or 429 (Rate Limit), pause and try again
+            if ((response.status === 503 || response.status === 429) && attempt < maxRetries) {
+                console.warn(`Gemini API reported status ${response.status}. Retrying in ${delay}ms... (Attempt ${attempt + 1}/${maxRetries})`);
+                await new Promise(resolve => setTimeout(resolve, delay));
+                delay *= 2; // Exponentially back off (1s -> 2s -> 4s)
+                continue;
             }
+
+            if (!response.ok) throw new Error(`API Gateway error: ${response.statusText}`);
+
+            const data = await response.json();
+            const rawOutput = data.candidates[0].content.parts[0].text.trim();
+
+            const pieces = rawOutput.split('|||');
+            const summary = pieces[0] ? pieces[0].trim() : "Summary generation skipped.";
+            const tags = pieces[1] ? pieces[1].trim() : "";
+
+            return { summary, tags };
+        } catch (error) {
+            if (attempt === maxRetries) {
+                console.error("Gemini AI integration processing exception after retries:", error);
+                return { summary: "AI Evaluation failed due to temporary server capacity limits.", tags: "" };
+            }
+            // Fallback delay for network dropouts
+            await new Promise(resolve => setTimeout(resolve, delay));
+            delay *= 2;
         }
+    }
+}
 
 
 
@@ -1695,12 +1712,6 @@
             document.getElementById('staged-tags-row').style.display = "none"; // Hide just the tags row
             checkStagingCompletion();
         });
-
-
-
-
-
-
 
 
         // Firebase Config
@@ -1952,9 +1963,6 @@
                 uploadStatus.style.color = "var(--clr-danger)";
             }
         });
-
-
-
 
 
 
