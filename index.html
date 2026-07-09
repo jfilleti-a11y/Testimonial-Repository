@@ -698,6 +698,25 @@
         transition: var(--transition);
       }
 
+      .video-indicator-icon {
+        position: absolute;
+        top: 1rem;
+        left: 1rem;
+        z-index: 4;
+        background: rgba(255,255,255,0.8);
+        backdrop-filter: blur(4px);
+        border: 1px solid rgba(0,0,0,0.08);
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: var(--shadow-sm);
+        color: var(--clr-primary);
+        pointer-events: none; /* So it doesn't block card click */
+      }
+
       /* --- HOVER STYLES (for mouse devices only) --- */
       @media (hover: hover) {
         .card:hover {
@@ -955,6 +974,49 @@
         padding-left: 1.25rem;
         border-left: 4px solid var(--clr-primary);
         font-style: italic;
+      }
+
+      .root-links-bar {
+        background: var(--clr-surface);
+        border: 1px solid var(--clr-border);
+        border-radius: var(--radius-lg);
+        padding: 0.8rem 1.25rem;
+        margin-bottom: 2rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+        box-shadow: var(--shadow-sm);
+      }
+      .root-links-bar h4 {
+        margin: 0;
+        font-size: .8rem;
+        text-transform: uppercase;
+        letter-spacing: .08em;
+        color: var(--clr-text-muted);
+        font-weight: 700;
+        margin-right: 1rem;
+      }
+      .root-links-bar a {
+        color: var(--clr-text-muted);
+        text-decoration: none;
+        font-weight: 500;
+        font-size: .9rem;
+        transition: var(--transition);
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        padding: 0.4rem 0.8rem;
+        border-radius: var(--radius-md);
+      }
+      .root-links-bar a:hover {
+        background-color: var(--clr-primary-light);
+        color: var(--clr-primary);
+      }
+      .root-links-bar a svg {
+        width: 15px;
+        height: 15px;
+        flex-shrink: 0;
       }
 
       .ai-summary-box {
@@ -1309,6 +1371,26 @@
                 <input type="checkbox" id="transcript-search-checkbox" class="checkbox-label">
                 <label for="transcript-search-checkbox" class="checkbox-label">Include transcript</label>
             </div>
+        </div>
+
+        <div class="root-links-bar">
+            <h4>Root Folders:</h4>
+            <a href="https://drive.google.com/drive/folders/1NetnnRExL6bYuelYjK_tPaXrvyWUSBQU" target="_blank">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
+                Google Drive
+            </a>
+            <a href="https://brandassets.waveapps.com/web/453ef4579a6e8c60/testimonials-headshots-forweb/" target="_blank">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
+                Headshots
+            </a>
+            <a href="https://brandassets.waveapps.com/share/D0F51F98-D1EE-4543-8C4BE92489771270/" target="_blank">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"></rect><line x1="7" y1="2" x2="7" y2="22"></line><line x1="17" y1="2" x2="17" y2="22"></line><line x1="2" y1="12" x2="22" y2="12"></line><line x1="2" y1="7" x2="7" y2="7"></line><line x1="2" y1="17" x2="7" y2="17"></line><line x1="17" y1="17" x2="22" y2="17"></line><line x1="17" y1="7" x2="22" y2="7"></line></svg>
+                Web Edits
+            </a>
+            <a href="https://brandassets.waveapps.com/share/75A1BA26-BABE-4C2A-91ABC3AEFF6BA668/" target="_blank">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"></rect><line x1="7" y1="2" x2="7" y2="22"></line><line x1="17" y1="2" x2="17" y2="22"></line><line x1="2" y1="12" x2="22" y2="12"></line><line x1="2" y1="7" x2="7" y2="7"></line><line x1="2" y1="17" x2="7" y2="17"></line><line x1="17" y1="17" x2="22" y2="17"></line><line x1="17" y1="7" x2="22" y2="7"></line></svg>
+                Paid Edits
+            </a>
         </div>
 
         <div id="testimonial-grid" class="testimonial-grid"></div>
@@ -2021,7 +2103,14 @@ ${transcript}`;
                 card.dataset.id = data.id; // Add data-id for SortableJS
                 const displayImg = data.imageUrl || 'https://placehold.co/600x400/e5e7eb/a3a8b8?text=No+Image';
 
+                const videoIconHtml = data.websiteVideoEditUrl ? `
+                    <div class="video-indicator-icon" title="Has Website Video Edit">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"></rect><line x1="7" y1="2" x2="7" y2="22"></line><line x1="17" y1="2" x2="17" y2="22"></line><line x1="2" y1="12" x2="22" y2="12"></line><line x1="2" y1="7" x2="7" y2="7"></line><line x1="2" y1="17" x2="7" y2="17"></line><line x1="17" y1="17" x2="22" y2="17"></line><line x1="17" y1="7" x2="22" y2="7"></line></svg>
+                    </div>
+                ` : '';
+
                 card.innerHTML = `
+                    ${videoIconHtml}
                     <div class="card-hover-actions">
                         <button class="card-hover-btn edit" data-id="${data.id}" title="Edit Testimonial">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg>
