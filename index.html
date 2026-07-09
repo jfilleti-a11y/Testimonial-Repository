@@ -2191,7 +2191,8 @@ ${transcript}`;
         const backBtn = document.getElementById('back-btn');
 
         backBtn.addEventListener('click', () => {
-            history.back();
+            history.pushState(null, "Testimonial Repository", window.location.pathname);
+            updateView();
         });
 
         function renderVideoEmbed(url) {
