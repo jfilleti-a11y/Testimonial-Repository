@@ -4,6 +4,9 @@
 
 
 <head>
+    <link rel="icon" href="favicons/favicon.ico" sizes="any">
+    <link rel="icon" href="favicons/favicon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="favicons/apple-touch-icon.png">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Wave Testimonial Repository</title>
@@ -458,6 +461,12 @@
         border-color: var(--clr-primary);
         background: var(--clr-surface);
         box-shadow: 0 0 0 3px rgba(79,95,232,.14);
+      }
+
+      /* Visual feedback for file drag-over on textareas */
+      form textarea.drag-over {
+        border-color: var(--clr-primary) !important;
+        background-color: var(--clr-primary-light) !important;
       }
 
       .form-group {
@@ -1318,6 +1327,15 @@
         scrollbar-width: thin; /* "auto" or "thin" */
         scrollbar-color: var(--clr-text-muted) var(--clr-surface-3); /* thumb track */
       }
+
+      /* --- Highlight Style for Search --- */
+      mark {
+        background: #ffec8f;
+        color: #3d3d3d;
+        border-radius: 3px;
+        padding: 0.1em 0.2em;
+      }
+      body.dark mark { background: #ffe04a; color: #1c1c1c; }
     </style>
 </head>
 <body>
@@ -1438,7 +1456,7 @@
                     </div>
                     <div class="form-group">
                         <label for="transcript">Full Transcript</label>
-                        <textarea id="transcript" placeholder="Paste Full Transcript (.txt) Here" rows="6" required></textarea>
+                        <textarea id="transcript" placeholder="Paste or Drag-&-Drop Full Transcript (.txt) Here" rows="6" required></textarea>
                     </div>
                     <div class="form-group">
                         <label for="tags">Tags (comma separated)</label>
@@ -1512,7 +1530,7 @@
                     </div>
                     <div class="form-group">
                         <label for="edit-transcript">Full Transcript</label>
-                        <textarea id="edit-transcript" rows="6" placeholder="Transcript" required></textarea>
+                        <textarea id="edit-transcript" rows="6" placeholder="Paste or Drag-&-Drop Full Transcript (.txt) Here" required></textarea>
                     </div>
 
                     <div class="ai-section">
@@ -1763,6 +1781,48 @@ ${transcript}`;
             }
         });
 
+        // --- Drag-and-Drop for Transcript File ---
+        const transcriptTextArea = document.getElementById('transcript');
+
+        // Add a visual indicator when a file is dragged over
+        ['dragenter', 'dragover'].forEach(eventName => {
+            transcriptTextArea.addEventListener(eventName, () => {
+                transcriptTextArea.classList.add('drag-over');
+            }, false);
+        });
+
+        // Remove the visual indicator
+        ['dragleave', 'drop'].forEach(eventName => {
+            transcriptTextArea.addEventListener(eventName, () => {
+                transcriptTextArea.classList.remove('drag-over');
+            }, false);
+        });
+
+        // Prevent the browser's default behavior for all drag events
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            transcriptTextArea.addEventListener(eventName, (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+            }, false);
+        });
+
+        // Handle the file drop
+        transcriptTextArea.addEventListener('drop', (e) => {
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                const file = files[0];
+                // Check if the dropped file is a text file
+                if (file.type === 'text/plain' || file.name.endsWith('.txt')) {
+                    const reader = new FileReader();
+                    reader.onload = (readEvent) => {
+                        transcriptTextArea.value = readEvent.target.result;
+                    };
+                    reader.readAsText(file);
+                } else {
+                    alert('Please drop a valid .txt file.');
+                }
+            }
+        }, false);
         // --- NEW STAGING MANAGEMENT BUTTON CLICK ROUTERS ---
 
         // 1. Summary Actions Row Click Handlers
@@ -1986,7 +2046,7 @@ ${transcript}`;
                 let finalTagsArray = [];
 
                 // Run background AI loop because transcript is verified mandatory
-                uploadStatus.innerHTML = `<div class="loading-spinner"></div> Using AI to generate summary and tags from transcript...`;
+                uploadStatus.innerHTML = `<div class="loading-spinner"></div> Using AI to generate summary and tags...`;
 
                 try {
                     const configRef = doc(db, 'config', 'geminiAPI');
@@ -2169,10 +2229,10 @@ ${transcript}`;
 
             clearBtn.classList.toggle('visible', searchTerm.length > 0);
 
-            // --- Multi-keyword "AND" search logic ---
+            // --- Clean and split keywords ---
             const searchKeywords = searchTerm.split(' ').filter(k => k);
 
-            // --- Suggestion Logic ---
+            // --- Suggestion Logic (Kept as-is to suggest based on the last typed word) ---
             if (searchTerm.length > 0 && !searchTerm.endsWith(' ')) {
                 const lastWord = searchKeywords[searchKeywords.length - 1];
                 const matchingTags = [...allTags].filter(tag => tag.toLowerCase().startsWith(lastWord));
@@ -2202,9 +2262,12 @@ ${transcript}`;
                 // If there are no keywords, show all testimonials
                 if (searchKeywords.length === 0) return true;
 
-                // Check that *every* keyword is present in the searchable text
-                return searchKeywords.every(keyword => searchableText.includes(keyword));
+                // --- NEW: Exact Phrase Search Logic ---
+                // Join the keywords back with a single space to look for the exact consecutive phrase
+                const exactPhrase = searchKeywords.join(' ');
+                return searchableText.includes(exactPhrase);
             });
+
             renderGrid(filteredData);
         });
 
@@ -2324,14 +2387,39 @@ ${transcript}`;
             `;
         }
 
+        function highlightText(text, query) {
+            if (!query || !text) return text;
+
+            // Clean up extra spaces to match the exact phrase search logic
+            const cleanQuery = query.trim().replace(/\s+/g, ' ');
+            if (!cleanQuery) return text;
+
+            // Escape special characters for regex for the entire consecutive phrase
+            const escapedQuery = cleanQuery.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+
+            // Look for the exact phrase sequentially
+            const regex = new RegExp(`(${escapedQuery})`, 'gi');
+
+            return text.replace(regex, '<mark>$1</mark>');
+        }
+
        async function openDetail(id) {
-            history.pushState({ testimonialId: id }, `Testimonial: ${id}`, `?testimonial=${id}`);
+            const searchTerm = searchBar.value.trim();
+            const url = new URL(window.location);
+            url.searchParams.set('testimonial', id);
+            if (searchTerm) {
+                url.searchParams.set('q', searchTerm);
+            } else {
+                url.searchParams.delete('q');
+            }
+            history.pushState({ testimonialId: id, q: searchTerm }, `Testimonial: ${id}`, url.search);
             updateView();
         }
 
         async function updateView() {
             const params = new URLSearchParams(window.location.search);
             const testimonialId = params.get('testimonial');
+            const searchQuery = params.get('q'); // Get search query
 
             if (testimonialId) {
                 currentActiveId = testimonialId;
@@ -2349,6 +2437,12 @@ ${transcript}`;
                         const tagsList = data.tags && data.tags.length > 0
                             ? data.tags.map(tag => `<li><button class="clickable-tag" data-tag="${tag}">${tag}</button></li>`).join('')
                             : '<li style="color:var(--clr-text-muted);font-size:.85rem;">No tags</li>';
+
+                        // --- Highlight search terms ---
+                        const pullQuoteHtml = highlightText(`"${data.pullQuote}"`, searchQuery);
+                        const notesHtml = data.additionalNotes ? highlightText(data.additionalNotes, searchQuery) : '';
+                        const transcriptHtml = data.transcript ? highlightText(data.transcript, searchQuery) : '';
+
 
                         // Define the Quick Links content once to avoid repetition
                         const quickLinksContent = `
@@ -2388,7 +2482,7 @@ ${transcript}`;
                                         ${data.frameUrl ? renderVideoEmbed(data.frameUrl) : 'No video link provided'}
                                     </div>
 
-                                    <blockquote class="pull-quote">"${data.pullQuote}"</blockquote>
+                                    <blockquote class="pull-quote">${pullQuoteHtml}</blockquote>
 
                                      <div class="quick-links-box mobile-only">
                                         ${quickLinksContent}
@@ -2416,14 +2510,14 @@ ${transcript}`;
                                     ${data.additionalNotes ? `
                                     <div class="notes-box">
                                         <h4>Additional Notes</h4>
-                                        <div class="notes-body">${data.additionalNotes}</div>
+                                        <div class="notes-body">${notesHtml}</div>
                                     </div>
                                     ` : ''}
 
                                     ${data.transcript ? `
                                     <div class="transcript-box">
                                         <h3>Full Transcript</h3>
-                                        <div class="transcript-body">${data.transcript}</div>
+                                        <div class="transcript-body">${transcriptHtml}</div>
                                     </div>
                                     ` : ''}
                                 </div>
@@ -2463,6 +2557,18 @@ ${transcript}`;
                             });
 
                             observer.observe(summaryElement);
+                        }
+
+                        // --- Scroll to first highlight ---
+                        const firstHighlight = detailContent.querySelector('mark');
+                        if (firstHighlight) {
+                            // A brief timeout ensures the browser has finished painting the new content
+                            // and calculated layouts before we try to scroll. This prevents a race
+                            // condition where the scroll command executes before the target's final
+                            // position is known, which is more likely with many highlighted items.
+                            setTimeout(() => {
+                                firstHighlight.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                            }, 100);
                         }
 
                         const tagElements = detailContent.querySelectorAll('.clickable-tag');
@@ -2563,6 +2669,11 @@ ${transcript}`;
                 repoScreen.classList.remove('hidden');
                 setHeaderLarge();
                 detailContent.innerHTML = ""; // Stop video playback
+
+                // When returning to the main grid view, clear the search bar and its state.
+                searchBar.value = '';
+                document.getElementById('clear-search-btn').classList.remove('visible');
+                suggestionsContainer.classList.remove('visible');
 
                 // Re-render the grid with animation when returning to the main view
                 // This fixes the bug where animation wouldn't run after a search.
