@@ -1247,6 +1247,7 @@ suggestionsContainer.addEventListener('click', (e) => {
                 } else {
                     searchBar.value = '';
                 }
+                transcriptCheckbox.checked = true; // Set "include transcript" ON as default
 
                 suggestionsContainer.classList.remove('visible');
 
